@@ -23,7 +23,6 @@ export class App {
     private static loaded: number = 0;
 
     static init(callback: () => void) {
-  
         StoreService.Account.current(() => {
             this.loadData(callback);
         });

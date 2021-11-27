@@ -21,9 +21,9 @@ export class OrderService extends Service {
             productId: order.productId,
             side: ['buy', 'sell'][order.side],
             type: ['market', 'limit'][order.type],
-            price: order.price,
-            size: order.size,
-            funds: order.quote
+            price: order.price.toString(),
+            size: order.size.toString(),
+            funds: order.quote.toString()
         }, { headers: {HideError: true} });
     }
 

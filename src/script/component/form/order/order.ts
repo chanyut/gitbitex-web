@@ -115,6 +115,7 @@ export class OrderFormComponent extends Component {
 
     @Watch('trade.quote')
     tradeQuoteChange(_old: number, _new: number) {
+        console.log("quote", _old, "->", _new);
 
         if (this.trade.side == 0  && this.trade.type == 0) {
 
@@ -133,6 +134,7 @@ export class OrderFormComponent extends Component {
 
     @Watch('trade.size')
     tradeSizeChange(_old: number, _new: number) {
+        console.log("size", _old, "->", _new);
 
         if (this.trade.side == 1 || (this.trade.side == 0 && this.trade.type == 1)) {
             
@@ -151,6 +153,7 @@ export class OrderFormComponent extends Component {
 
     @Watch('trade.price')
     tradePriceChange() {
+        console.log("price", this.trade.price);
 
         if (this.trade.side == 1) {
             this.trade.quote = this.trade.size * this.trade.price;
@@ -160,12 +163,20 @@ export class OrderFormComponent extends Component {
     }
 
     formatTrade() {
-        this.format.size = Number(this.trade.size || 0).toFixed(this.object.product.baseMinSize.length-2);
+        let size: number = 0;
+        console.log("[formatTrade] this.trade.size:", this.trade.size);
+        if (this.trade.size && !isNaN(this.trade.size)) { 
+            console.log("[formatTrade] set size => this.trade.size");
+            size = Number(this.trade.size);
+        }
+        console.log("[formatTrade] size:", size);
+        console.log("[formatTrade] this.object.product:", this.object.product);
+        this.format.size = size.toFixed(this.object.product.baseMinSize.length-2);
         this.format.quote = Number(this.trade.quote || 0).toFixed(this.object.product.quoteIncrement.length-2);
     }
 
     submit() {
-        
+        console.log("test....");
        
         this.trade.type == 0 && (this.trade.price = Number(this.object.product.price));
 
