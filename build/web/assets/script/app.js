@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 32);
+/******/ 	return __webpack_require__(__webpack_require__.s = 30);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -94,7 +94,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var vendor_1 = __webpack_require__(5);
-var vue_property_decorator_1 = __webpack_require__(17);
+var vue_property_decorator_1 = __webpack_require__(15);
 exports.Prop = vue_property_decorator_1.Prop;
 exports.Watch = vue_property_decorator_1.Watch;
 exports.Emit = vue_property_decorator_1.Emit;
@@ -340,7 +340,7 @@ exports.rethrow = function rethrow(err, filename, lineno, str){
     throw err;
   }
   try {
-    str = str || __webpack_require__(68).readFileSync(filename, 'utf8')
+    str = str || __webpack_require__(65).readFileSync(filename, 'utf8')
   } catch (ex) {
     rethrow(err, null, lineno)
   }
@@ -391,8 +391,8 @@ exports.DebugItem = function DebugItem(lineno, filename) {
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", { value: true });
-var account_1 = __webpack_require__(34);
-var trade_1 = __webpack_require__(18);
+var account_1 = __webpack_require__(32);
+var trade_1 = __webpack_require__(16);
 var StoreService = /** @class */ (function () {
     function StoreService() {
     }
@@ -436,11 +436,11 @@ exports.StoreService = StoreService;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", { value: true });
-var file_1 = __webpack_require__(40);
-var server_1 = __webpack_require__(60);
-var order_1 = __webpack_require__(61);
-var trade_1 = __webpack_require__(62);
-var account_1 = __webpack_require__(63);
+var file_1 = __webpack_require__(38);
+var server_1 = __webpack_require__(57);
+var order_1 = __webpack_require__(58);
+var trade_1 = __webpack_require__(59);
+var account_1 = __webpack_require__(60);
 var HttpService = /** @class */ (function () {
     function HttpService() {
     }
@@ -496,7 +496,9 @@ exports.HttpService = HttpService;
 "use strict";
 
 
-var bind = __webpack_require__(22);
+var bind = __webpack_require__(20);
+
+/*global toString:true*/
 
 // utils is a library of generic helper functions non-specific to axios
 
@@ -600,21 +602,6 @@ function isObject(val) {
 }
 
 /**
- * Determine if a value is a plain Object
- *
- * @param {Object} val The value to test
- * @return {boolean} True if value is a plain Object, otherwise false
- */
-function isPlainObject(val) {
-  if (toString.call(val) !== '[object Object]') {
-    return false;
-  }
-
-  var prototype = Object.getPrototypeOf(val);
-  return prototype === null || prototype === Object.prototype;
-}
-
-/**
  * Determine if a value is a Date
  *
  * @param {Object} val The value to test
@@ -681,7 +668,7 @@ function isURLSearchParams(val) {
  * @returns {String} The String freed of excess whitespace
  */
 function trim(str) {
-  return str.trim ? str.trim() : str.replace(/^\s+|\s+$/g, '');
+  return str.replace(/^\s*/, '').replace(/\s*$/, '');
 }
 
 /**
@@ -770,12 +757,34 @@ function forEach(obj, fn) {
 function merge(/* obj1, obj2, obj3, ... */) {
   var result = {};
   function assignValue(val, key) {
-    if (isPlainObject(result[key]) && isPlainObject(val)) {
+    if (typeof result[key] === 'object' && typeof val === 'object') {
       result[key] = merge(result[key], val);
-    } else if (isPlainObject(val)) {
-      result[key] = merge({}, val);
-    } else if (isArray(val)) {
-      result[key] = val.slice();
+    } else {
+      result[key] = val;
+    }
+  }
+
+  for (var i = 0, l = arguments.length; i < l; i++) {
+    forEach(arguments[i], assignValue);
+  }
+  return result;
+}
+
+/**
+ * Function equal to merge with the difference being that no reference
+ * to original objects is kept.
+ *
+ * @see merge
+ * @param {Object} obj1 Object to merge
+ * @returns {Object} Result of all merge properties
+ */
+function deepMerge(/* obj1, obj2, obj3, ... */) {
+  var result = {};
+  function assignValue(val, key) {
+    if (typeof result[key] === 'object' && typeof val === 'object') {
+      result[key] = deepMerge(result[key], val);
+    } else if (typeof val === 'object') {
+      result[key] = deepMerge({}, val);
     } else {
       result[key] = val;
     }
@@ -806,19 +815,6 @@ function extend(a, b, thisArg) {
   return a;
 }
 
-/**
- * Remove byte order marker. This catches EF BB BF (the UTF-8 BOM)
- *
- * @param {string} content with BOM
- * @return {string} content value without BOM
- */
-function stripBOM(content) {
-  if (content.charCodeAt(0) === 0xFEFF) {
-    content = content.slice(1);
-  }
-  return content;
-}
-
 module.exports = {
   isArray: isArray,
   isArrayBuffer: isArrayBuffer,
@@ -828,7 +824,6 @@ module.exports = {
   isString: isString,
   isNumber: isNumber,
   isObject: isObject,
-  isPlainObject: isPlainObject,
   isUndefined: isUndefined,
   isDate: isDate,
   isFile: isFile,
@@ -839,9 +834,9 @@ module.exports = {
   isStandardBrowserEnv: isStandardBrowserEnv,
   forEach: forEach,
   merge: merge,
+  deepMerge: deepMerge,
   extend: extend,
-  trim: trim,
-  stripBOM: stripBOM
+  trim: trim
 };
 
 
@@ -865,10 +860,10 @@ module.exports = {
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", { value: true });
-var vue_1 = __webpack_require__(15);
-var vue_class_component_1 = __webpack_require__(19);
-var vue_router_1 = __webpack_require__(37);
-var vuex_1 = __webpack_require__(38);
+var vue_1 = __webpack_require__(13);
+var vue_class_component_1 = __webpack_require__(17);
+var vue_router_1 = __webpack_require__(35);
+var vuex_1 = __webpack_require__(36);
 exports.BaseFramework = vue_1.default;
 exports.BaseComponent = vue_class_component_1.default;
 exports.BaseRouter = vue_router_1.default;
@@ -917,15 +912,15 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 var watch_1 = __webpack_require__(7);
 var service_1 = __webpack_require__(2);
-var app_1 = __webpack_require__(30);
+var app_1 = __webpack_require__(28);
 var vendor_1 = __webpack_require__(5);
-var vue_property_decorator_1 = __webpack_require__(17);
+var vue_property_decorator_1 = __webpack_require__(15);
 function Route(path, template) {
     return function (target) {
         target.path = path;
         target.routeName = target.name;
         return vendor_1.BaseComponent({
-            template: ("" + __webpack_require__(84)()).replace('@template@', template)
+            template: ("" + __webpack_require__(81)()).replace('@template@', template)
         })(target);
     };
 }
@@ -1398,7 +1393,7 @@ exports.Helper = Helper;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", { value: true });
-var request_1 = __webpack_require__(41);
+var request_1 = __webpack_require__(39);
 var Service = /** @class */ (function () {
     function Service() {
         this.request = request_1.Request.getInstance();
@@ -1444,174 +1439,6 @@ exports.Constant = Constant;
 
 /***/ }),
 /* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {
-
-var utils = __webpack_require__(4);
-var normalizeHeaderName = __webpack_require__(48);
-var enhanceError = __webpack_require__(24);
-
-var DEFAULT_CONTENT_TYPE = {
-  'Content-Type': 'application/x-www-form-urlencoded'
-};
-
-function setContentTypeIfUnset(headers, value) {
-  if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
-    headers['Content-Type'] = value;
-  }
-}
-
-function getDefaultAdapter() {
-  var adapter;
-  if (typeof XMLHttpRequest !== 'undefined') {
-    // For browsers use XHR adapter
-    adapter = __webpack_require__(25);
-  } else if (typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]') {
-    // For node use HTTP adapter
-    adapter = __webpack_require__(25);
-  }
-  return adapter;
-}
-
-function stringifySafely(rawValue, parser, encoder) {
-  if (utils.isString(rawValue)) {
-    try {
-      (parser || JSON.parse)(rawValue);
-      return utils.trim(rawValue);
-    } catch (e) {
-      if (e.name !== 'SyntaxError') {
-        throw e;
-      }
-    }
-  }
-
-  return (encoder || JSON.stringify)(rawValue);
-}
-
-var defaults = {
-
-  transitional: {
-    silentJSONParsing: true,
-    forcedJSONParsing: true,
-    clarifyTimeoutError: false
-  },
-
-  adapter: getDefaultAdapter(),
-
-  transformRequest: [function transformRequest(data, headers) {
-    normalizeHeaderName(headers, 'Accept');
-    normalizeHeaderName(headers, 'Content-Type');
-
-    if (utils.isFormData(data) ||
-      utils.isArrayBuffer(data) ||
-      utils.isBuffer(data) ||
-      utils.isStream(data) ||
-      utils.isFile(data) ||
-      utils.isBlob(data)
-    ) {
-      return data;
-    }
-    if (utils.isArrayBufferView(data)) {
-      return data.buffer;
-    }
-    if (utils.isURLSearchParams(data)) {
-      setContentTypeIfUnset(headers, 'application/x-www-form-urlencoded;charset=utf-8');
-      return data.toString();
-    }
-    if (utils.isObject(data) || (headers && headers['Content-Type'] === 'application/json')) {
-      setContentTypeIfUnset(headers, 'application/json');
-      return stringifySafely(data);
-    }
-    return data;
-  }],
-
-  transformResponse: [function transformResponse(data) {
-    var transitional = this.transitional || defaults.transitional;
-    var silentJSONParsing = transitional && transitional.silentJSONParsing;
-    var forcedJSONParsing = transitional && transitional.forcedJSONParsing;
-    var strictJSONParsing = !silentJSONParsing && this.responseType === 'json';
-
-    if (strictJSONParsing || (forcedJSONParsing && utils.isString(data) && data.length)) {
-      try {
-        return JSON.parse(data);
-      } catch (e) {
-        if (strictJSONParsing) {
-          if (e.name === 'SyntaxError') {
-            throw enhanceError(e, this, 'E_JSON_PARSE');
-          }
-          throw e;
-        }
-      }
-    }
-
-    return data;
-  }],
-
-  /**
-   * A timeout in milliseconds to abort a request. If set to 0 (default) a
-   * timeout is not created.
-   */
-  timeout: 0,
-
-  xsrfCookieName: 'XSRF-TOKEN',
-  xsrfHeaderName: 'X-XSRF-TOKEN',
-
-  maxContentLength: -1,
-  maxBodyLength: -1,
-
-  validateStatus: function validateStatus(status) {
-    return status >= 200 && status < 300;
-  },
-
-  headers: {
-    common: {
-      'Accept': 'application/json, text/plain, */*'
-    }
-  }
-};
-
-utils.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
-  defaults.headers[method] = {};
-});
-
-utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
-  defaults.headers[method] = utils.merge(DEFAULT_CONTENT_TYPE);
-});
-
-module.exports = defaults;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * A `Cancel` is an object that is thrown when an operation is canceled.
- *
- * @class
- * @param {string=} message The message.
- */
-function Cancel(message) {
-  this.message = message;
-}
-
-Cancel.prototype.toString = function toString() {
-  return 'Cancel' + (this.message ? ': ' + this.message : '');
-};
-
-Cancel.prototype.__CANCEL__ = true;
-
-module.exports = Cancel;
-
-
-/***/ }),
-/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13659,10 +13486,10 @@ Vue.compile = compileToFunctions;
 
 /* harmony default export */ __webpack_exports__["default"] = (Vue);
 
-/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(8), __webpack_require__(9), __webpack_require__(35).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(8), __webpack_require__(9), __webpack_require__(33).setImmediate))
 
 /***/ }),
-/* 16 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13751,7 +13578,7 @@ exports.WebSocketService = WebSocketService;
 
 
 /***/ }),
-/* 17 */
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13762,10 +13589,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony export (immutable) */ __webpack_exports__["Prop"] = Prop;
 /* harmony export (immutable) */ __webpack_exports__["Watch"] = Watch;
 /* harmony export (immutable) */ __webpack_exports__["Emit"] = Emit;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_class_component__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_class_component__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_class_component___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vue_class_component__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_reflect_metadata__ = __webpack_require__(64);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_reflect_metadata__ = __webpack_require__(61);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_reflect_metadata___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_reflect_metadata__);
 /* harmony reexport (default from non-hamory) */ __webpack_require__.d(__webpack_exports__, "Component", function() { return __WEBPACK_IMPORTED_MODULE_1_vue_class_component___default.a; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "Vue", function() { return __WEBPACK_IMPORTED_MODULE_0_vue__["default"]; });
@@ -13885,7 +13712,7 @@ function Emit(event) {
 
 
 /***/ }),
-/* 18 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13915,11 +13742,11 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var vendor_1 = __webpack_require__(5);
-var buffer_1 = __webpack_require__(39);
+var buffer_1 = __webpack_require__(37);
 var helper_1 = __webpack_require__(10);
-var websocket_1 = __webpack_require__(16);
-var channel_1 = __webpack_require__(20);
-var store_1 = __webpack_require__(21);
+var websocket_1 = __webpack_require__(14);
+var channel_1 = __webpack_require__(18);
+var store_1 = __webpack_require__(19);
 var http_1 = __webpack_require__(3);
 var TradeStore = /** @class */ (function (_super) {
     __extends(TradeStore, _super);
@@ -14260,7 +14087,7 @@ exports.TradeStore = TradeStore;
 
 
 /***/ }),
-/* 19 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14275,7 +14102,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var Vue = _interopDefault(__webpack_require__(15));
+var Vue = _interopDefault(__webpack_require__(13));
 
 var reflectionIsSupported = typeof Reflect !== 'undefined' && Reflect.defineMetadata;
 function copyReflectionMetadata(to, from) {
@@ -14537,7 +14364,7 @@ exports.mixins = mixins;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
 
 /***/ }),
-/* 20 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14570,7 +14397,7 @@ exports.SubscribeChannel = SubscribeChannel;
 
 
 /***/ }),
-/* 21 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14607,7 +14434,7 @@ exports.Store = Store;
 
 
 /***/ }),
-/* 22 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14625,7 +14452,7 @@ module.exports = function bind(fn, thisArg) {
 
 
 /***/ }),
-/* 23 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14635,6 +14462,7 @@ var utils = __webpack_require__(4);
 
 function encode(val) {
   return encodeURIComponent(val).
+    replace(/%40/gi, '@').
     replace(/%3A/gi, ':').
     replace(/%24/g, '$').
     replace(/%2C/gi, ',').
@@ -14702,88 +14530,141 @@ module.exports = function buildURL(url, params, paramsSerializer) {
 
 
 /***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function isCancel(value) {
+  return !!(value && value.__CANCEL__);
+};
+
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {
+
+var utils = __webpack_require__(4);
+var normalizeHeaderName = __webpack_require__(46);
+
+var DEFAULT_CONTENT_TYPE = {
+  'Content-Type': 'application/x-www-form-urlencoded'
+};
+
+function setContentTypeIfUnset(headers, value) {
+  if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
+    headers['Content-Type'] = value;
+  }
+}
+
+function getDefaultAdapter() {
+  var adapter;
+  if (typeof XMLHttpRequest !== 'undefined') {
+    // For browsers use XHR adapter
+    adapter = __webpack_require__(24);
+  } else if (typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]') {
+    // For node use HTTP adapter
+    adapter = __webpack_require__(24);
+  }
+  return adapter;
+}
+
+var defaults = {
+  adapter: getDefaultAdapter(),
+
+  transformRequest: [function transformRequest(data, headers) {
+    normalizeHeaderName(headers, 'Accept');
+    normalizeHeaderName(headers, 'Content-Type');
+    if (utils.isFormData(data) ||
+      utils.isArrayBuffer(data) ||
+      utils.isBuffer(data) ||
+      utils.isStream(data) ||
+      utils.isFile(data) ||
+      utils.isBlob(data)
+    ) {
+      return data;
+    }
+    if (utils.isArrayBufferView(data)) {
+      return data.buffer;
+    }
+    if (utils.isURLSearchParams(data)) {
+      setContentTypeIfUnset(headers, 'application/x-www-form-urlencoded;charset=utf-8');
+      return data.toString();
+    }
+    if (utils.isObject(data)) {
+      setContentTypeIfUnset(headers, 'application/json;charset=utf-8');
+      return JSON.stringify(data);
+    }
+    return data;
+  }],
+
+  transformResponse: [function transformResponse(data) {
+    /*eslint no-param-reassign:0*/
+    if (typeof data === 'string') {
+      try {
+        data = JSON.parse(data);
+      } catch (e) { /* Ignore */ }
+    }
+    return data;
+  }],
+
+  /**
+   * A timeout in milliseconds to abort a request. If set to 0 (default) a
+   * timeout is not created.
+   */
+  timeout: 0,
+
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
+
+  maxContentLength: -1,
+
+  validateStatus: function validateStatus(status) {
+    return status >= 200 && status < 300;
+  }
+};
+
+defaults.headers = {
+  common: {
+    'Accept': 'application/json, text/plain, */*'
+  }
+};
+
+utils.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
+  defaults.headers[method] = {};
+});
+
+utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
+  defaults.headers[method] = utils.merge(DEFAULT_CONTENT_TYPE);
+});
+
+module.exports = defaults;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
+
+/***/ }),
 /* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-/**
- * Update an Error with the specified config, error code, and response.
- *
- * @param {Error} error The error to update.
- * @param {Object} config The config.
- * @param {string} [code] The error code (for example, 'ECONNABORTED').
- * @param {Object} [request] The request.
- * @param {Object} [response] The response.
- * @returns {Error} The error.
- */
-module.exports = function enhanceError(error, config, code, request, response) {
-  error.config = config;
-  if (code) {
-    error.code = code;
-  }
-
-  error.request = request;
-  error.response = response;
-  error.isAxiosError = true;
-
-  error.toJSON = function toJSON() {
-    return {
-      // Standard
-      message: this.message,
-      name: this.name,
-      // Microsoft
-      description: this.description,
-      number: this.number,
-      // Mozilla
-      fileName: this.fileName,
-      lineNumber: this.lineNumber,
-      columnNumber: this.columnNumber,
-      stack: this.stack,
-      // Axios
-      config: this.config,
-      code: this.code,
-      status: this.response && this.response.status ? this.response.status : null
-    };
-  };
-  return error;
-};
-
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
 var utils = __webpack_require__(4);
-var settle = __webpack_require__(49);
-var cookies = __webpack_require__(50);
-var buildURL = __webpack_require__(23);
-var buildFullPath = __webpack_require__(51);
-var parseHeaders = __webpack_require__(54);
-var isURLSameOrigin = __webpack_require__(55);
-var createError = __webpack_require__(26);
-var defaults = __webpack_require__(13);
-var Cancel = __webpack_require__(14);
+var settle = __webpack_require__(47);
+var buildURL = __webpack_require__(21);
+var buildFullPath = __webpack_require__(49);
+var parseHeaders = __webpack_require__(52);
+var isURLSameOrigin = __webpack_require__(53);
+var createError = __webpack_require__(25);
 
 module.exports = function xhrAdapter(config) {
   return new Promise(function dispatchXhrRequest(resolve, reject) {
     var requestData = config.data;
     var requestHeaders = config.headers;
-    var responseType = config.responseType;
-    var onCanceled;
-    function done() {
-      if (config.cancelToken) {
-        config.cancelToken.unsubscribe(onCanceled);
-      }
-
-      if (config.signal) {
-        config.signal.removeEventListener('abort', onCanceled);
-      }
-    }
 
     if (utils.isFormData(requestData)) {
       delete requestHeaders['Content-Type']; // Let the browser set it
@@ -14794,7 +14675,7 @@ module.exports = function xhrAdapter(config) {
     // HTTP basic authentication
     if (config.auth) {
       var username = config.auth.username || '';
-      var password = config.auth.password ? unescape(encodeURIComponent(config.auth.password)) : '';
+      var password = config.auth.password || '';
       requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
     }
 
@@ -14804,14 +14685,23 @@ module.exports = function xhrAdapter(config) {
     // Set the request timeout in MS
     request.timeout = config.timeout;
 
-    function onloadend() {
-      if (!request) {
+    // Listen for ready state
+    request.onreadystatechange = function handleLoad() {
+      if (!request || request.readyState !== 4) {
         return;
       }
+
+      // The request errored out and we didn't get a response, this will be
+      // handled by onerror instead
+      // With one exception: request that using file: protocol, most browsers
+      // will return status as 0 even though it's a successful request
+      if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
+        return;
+      }
+
       // Prepare the response
       var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
-      var responseData = !responseType || responseType === 'text' ||  responseType === 'json' ?
-        request.responseText : request.response;
+      var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
       var response = {
         data: responseData,
         status: request.status,
@@ -14821,40 +14711,11 @@ module.exports = function xhrAdapter(config) {
         request: request
       };
 
-      settle(function _resolve(value) {
-        resolve(value);
-        done();
-      }, function _reject(err) {
-        reject(err);
-        done();
-      }, response);
+      settle(resolve, reject, response);
 
       // Clean up request
       request = null;
-    }
-
-    if ('onloadend' in request) {
-      // Use onloadend if available
-      request.onloadend = onloadend;
-    } else {
-      // Listen for ready state to emulate onloadend
-      request.onreadystatechange = function handleLoad() {
-        if (!request || request.readyState !== 4) {
-          return;
-        }
-
-        // The request errored out and we didn't get a response, this will be
-        // handled by onerror instead
-        // With one exception: request that using file: protocol, most browsers
-        // will return status as 0 even though it's a successful request
-        if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
-          return;
-        }
-        // readystate handler is calling before onerror or ontimeout handlers,
-        // so we should call onloadend on the next 'tick'
-        setTimeout(onloadend);
-      };
-    }
+    };
 
     // Handle browser request cancellation (as opposed to a manual cancellation)
     request.onabort = function handleAbort() {
@@ -14880,15 +14741,11 @@ module.exports = function xhrAdapter(config) {
 
     // Handle timeout
     request.ontimeout = function handleTimeout() {
-      var timeoutErrorMessage = config.timeout ? 'timeout of ' + config.timeout + 'ms exceeded' : 'timeout exceeded';
-      var transitional = config.transitional || defaults.transitional;
+      var timeoutErrorMessage = 'timeout of ' + config.timeout + 'ms exceeded';
       if (config.timeoutErrorMessage) {
         timeoutErrorMessage = config.timeoutErrorMessage;
       }
-      reject(createError(
-        timeoutErrorMessage,
-        config,
-        transitional.clarifyTimeoutError ? 'ETIMEDOUT' : 'ECONNABORTED',
+      reject(createError(timeoutErrorMessage, config, 'ECONNABORTED',
         request));
 
       // Clean up request
@@ -14899,6 +14756,8 @@ module.exports = function xhrAdapter(config) {
     // This is only done if running in a standard browser environment.
     // Specifically not if we're in a web worker, or react-native.
     if (utils.isStandardBrowserEnv()) {
+      var cookies = __webpack_require__(54);
+
       // Add xsrf header
       var xsrfValue = (config.withCredentials || isURLSameOrigin(fullPath)) && config.xsrfCookieName ?
         cookies.read(config.xsrfCookieName) :
@@ -14928,8 +14787,16 @@ module.exports = function xhrAdapter(config) {
     }
 
     // Add responseType to request if needed
-    if (responseType && responseType !== 'json') {
-      request.responseType = config.responseType;
+    if (config.responseType) {
+      try {
+        request.responseType = config.responseType;
+      } catch (e) {
+        // Expected DOMException thrown by browsers not compatible XMLHttpRequest Level 2.
+        // But, this can be suppressed for 'json' type as it can be parsed by default 'transformResponse' function.
+        if (config.responseType !== 'json') {
+          throw e;
+        }
+      }
     }
 
     // Handle progress if needed
@@ -14942,25 +14809,21 @@ module.exports = function xhrAdapter(config) {
       request.upload.addEventListener('progress', config.onUploadProgress);
     }
 
-    if (config.cancelToken || config.signal) {
+    if (config.cancelToken) {
       // Handle cancellation
-      // eslint-disable-next-line func-names
-      onCanceled = function(cancel) {
+      config.cancelToken.promise.then(function onCanceled(cancel) {
         if (!request) {
           return;
         }
-        reject(!cancel || (cancel && cancel.type) ? new Cancel('canceled') : cancel);
-        request.abort();
-        request = null;
-      };
 
-      config.cancelToken && config.cancelToken.subscribe(onCanceled);
-      if (config.signal) {
-        config.signal.aborted ? onCanceled() : config.signal.addEventListener('abort', onCanceled);
-      }
+        request.abort();
+        reject(cancel);
+        // Clean up request
+        request = null;
+      });
     }
 
-    if (!requestData) {
+    if (requestData === undefined) {
       requestData = null;
     }
 
@@ -14971,13 +14834,13 @@ module.exports = function xhrAdapter(config) {
 
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var enhanceError = __webpack_require__(24);
+var enhanceError = __webpack_require__(48);
 
 /**
  * Create an Error with the specified message, config, error code, request and response.
@@ -14996,19 +14859,7 @@ module.exports = function createError(message, config, code, request, response) 
 
 
 /***/ }),
-/* 27 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function isCancel(value) {
-  return !!(value && value.__CANCEL__);
-};
-
-
-/***/ }),
-/* 28 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15029,84 +14880,58 @@ module.exports = function mergeConfig(config1, config2) {
   config2 = config2 || {};
   var config = {};
 
-  function getMergedValue(target, source) {
-    if (utils.isPlainObject(target) && utils.isPlainObject(source)) {
-      return utils.merge(target, source);
-    } else if (utils.isPlainObject(source)) {
-      return utils.merge({}, source);
-    } else if (utils.isArray(source)) {
-      return source.slice();
+  var valueFromConfig2Keys = ['url', 'method', 'params', 'data'];
+  var mergeDeepPropertiesKeys = ['headers', 'auth', 'proxy'];
+  var defaultToConfig2Keys = [
+    'baseURL', 'url', 'transformRequest', 'transformResponse', 'paramsSerializer',
+    'timeout', 'withCredentials', 'adapter', 'responseType', 'xsrfCookieName',
+    'xsrfHeaderName', 'onUploadProgress', 'onDownloadProgress',
+    'maxContentLength', 'validateStatus', 'maxRedirects', 'httpAgent',
+    'httpsAgent', 'cancelToken', 'socketPath'
+  ];
+
+  utils.forEach(valueFromConfig2Keys, function valueFromConfig2(prop) {
+    if (typeof config2[prop] !== 'undefined') {
+      config[prop] = config2[prop];
     }
-    return source;
-  }
+  });
 
-  // eslint-disable-next-line consistent-return
-  function mergeDeepProperties(prop) {
-    if (!utils.isUndefined(config2[prop])) {
-      return getMergedValue(config1[prop], config2[prop]);
-    } else if (!utils.isUndefined(config1[prop])) {
-      return getMergedValue(undefined, config1[prop]);
+  utils.forEach(mergeDeepPropertiesKeys, function mergeDeepProperties(prop) {
+    if (utils.isObject(config2[prop])) {
+      config[prop] = utils.deepMerge(config1[prop], config2[prop]);
+    } else if (typeof config2[prop] !== 'undefined') {
+      config[prop] = config2[prop];
+    } else if (utils.isObject(config1[prop])) {
+      config[prop] = utils.deepMerge(config1[prop]);
+    } else if (typeof config1[prop] !== 'undefined') {
+      config[prop] = config1[prop];
     }
-  }
+  });
 
-  // eslint-disable-next-line consistent-return
-  function valueFromConfig2(prop) {
-    if (!utils.isUndefined(config2[prop])) {
-      return getMergedValue(undefined, config2[prop]);
+  utils.forEach(defaultToConfig2Keys, function defaultToConfig2(prop) {
+    if (typeof config2[prop] !== 'undefined') {
+      config[prop] = config2[prop];
+    } else if (typeof config1[prop] !== 'undefined') {
+      config[prop] = config1[prop];
     }
-  }
+  });
 
-  // eslint-disable-next-line consistent-return
-  function defaultToConfig2(prop) {
-    if (!utils.isUndefined(config2[prop])) {
-      return getMergedValue(undefined, config2[prop]);
-    } else if (!utils.isUndefined(config1[prop])) {
-      return getMergedValue(undefined, config1[prop]);
+  var axiosKeys = valueFromConfig2Keys
+    .concat(mergeDeepPropertiesKeys)
+    .concat(defaultToConfig2Keys);
+
+  var otherKeys = Object
+    .keys(config2)
+    .filter(function filterAxiosKeys(key) {
+      return axiosKeys.indexOf(key) === -1;
+    });
+
+  utils.forEach(otherKeys, function otherKeysDefaultToConfig2(prop) {
+    if (typeof config2[prop] !== 'undefined') {
+      config[prop] = config2[prop];
+    } else if (typeof config1[prop] !== 'undefined') {
+      config[prop] = config1[prop];
     }
-  }
-
-  // eslint-disable-next-line consistent-return
-  function mergeDirectKeys(prop) {
-    if (prop in config2) {
-      return getMergedValue(config1[prop], config2[prop]);
-    } else if (prop in config1) {
-      return getMergedValue(undefined, config1[prop]);
-    }
-  }
-
-  var mergeMap = {
-    'url': valueFromConfig2,
-    'method': valueFromConfig2,
-    'data': valueFromConfig2,
-    'baseURL': defaultToConfig2,
-    'transformRequest': defaultToConfig2,
-    'transformResponse': defaultToConfig2,
-    'paramsSerializer': defaultToConfig2,
-    'timeout': defaultToConfig2,
-    'timeoutMessage': defaultToConfig2,
-    'withCredentials': defaultToConfig2,
-    'adapter': defaultToConfig2,
-    'responseType': defaultToConfig2,
-    'xsrfCookieName': defaultToConfig2,
-    'xsrfHeaderName': defaultToConfig2,
-    'onUploadProgress': defaultToConfig2,
-    'onDownloadProgress': defaultToConfig2,
-    'decompress': defaultToConfig2,
-    'maxContentLength': defaultToConfig2,
-    'maxBodyLength': defaultToConfig2,
-    'transport': defaultToConfig2,
-    'httpAgent': defaultToConfig2,
-    'httpsAgent': defaultToConfig2,
-    'cancelToken': defaultToConfig2,
-    'socketPath': defaultToConfig2,
-    'responseEncoding': defaultToConfig2,
-    'validateStatus': mergeDirectKeys
-  };
-
-  utils.forEach(Object.keys(config1).concat(Object.keys(config2)), function computeConfigValue(prop) {
-    var merge = mergeMap[prop] || mergeDeepProperties;
-    var configValue = merge(prop);
-    (utils.isUndefined(configValue) && merge !== mergeDirectKeys) || (config[prop] = configValue);
   });
 
   return config;
@@ -15114,15 +14939,33 @@ module.exports = function mergeConfig(config1, config2) {
 
 
 /***/ }),
-/* 29 */
-/***/ (function(module, exports) {
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = {
-  "version": "0.24.0"
+"use strict";
+
+
+/**
+ * A `Cancel` is an object that is thrown when an operation is canceled.
+ *
+ * @class
+ * @param {string=} message The message.
+ */
+function Cancel(message) {
+  this.message = message;
+}
+
+Cancel.prototype.toString = function toString() {
+  return 'Cancel' + (this.message ? ': ' + this.message : '');
 };
 
+Cancel.prototype.__CANCEL__ = true;
+
+module.exports = Cancel;
+
+
 /***/ }),
-/* 30 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15143,7 +14986,7 @@ module.exports = {
 Object.defineProperty(exports, "__esModule", { value: true });
 var watch_1 = __webpack_require__(7);
 var service_1 = __webpack_require__(2);
-var websocket_1 = __webpack_require__(16);
+var websocket_1 = __webpack_require__(14);
 var constant_1 = __webpack_require__(12);
 var App = /** @class */ (function () {
     function App() {
@@ -15185,7 +15028,7 @@ exports.App = App;
 
 
 /***/ }),
-/* 31 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15266,7 +15109,7 @@ var ChangePasswordModalComponent = /** @class */ (function (_super) {
         component_1.Emit('close')
     ], ChangePasswordModalComponent.prototype, "close", null);
     ChangePasswordModalComponent = __decorate([
-        component_1.Dom(exports.MODAL_CHANGE_PASSWORD, __webpack_require__(86)())
+        component_1.Dom(exports.MODAL_CHANGE_PASSWORD, __webpack_require__(83)())
     ], ChangePasswordModalComponent);
     return ChangePasswordModalComponent;
 }(component_1.Component));
@@ -15274,7 +15117,7 @@ exports.ChangePasswordModalComponent = ChangePasswordModalComponent;
 
 
 /***/ }),
-/* 32 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15293,64 +15136,64 @@ exports.ChangePasswordModalComponent = ChangePasswordModalComponent;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", { value: true });
-var tradingview_1 = __webpack_require__(33);
-var candle_1 = __webpack_require__(69);
-var depth_1 = __webpack_require__(71);
-var slider_1 = __webpack_require__(73);
-var code_1 = __webpack_require__(75);
-var bar_down_1 = __webpack_require__(77);
-var cert_1 = __webpack_require__(79);
-var home_1 = __webpack_require__(81);
-var forgot_1 = __webpack_require__(83);
-var change_password_1 = __webpack_require__(31);
-var pagination_1 = __webpack_require__(87);
-var order_1 = __webpack_require__(89);
-var select_1 = __webpack_require__(91);
-var hamburger_1 = __webpack_require__(93);
-var order_2 = __webpack_require__(95);
-var down_1 = __webpack_require__(97);
-var up_1 = __webpack_require__(99);
-var arrow_1 = __webpack_require__(101);
-var wallet_1 = __webpack_require__(103);
-var wallet_list_1 = __webpack_require__(105);
-var transaction_1 = __webpack_require__(107);
-var sent_1 = __webpack_require__(109);
-var wallet_2 = __webpack_require__(111);
-var withdrawal_1 = __webpack_require__(113);
-var deposit_1 = __webpack_require__(115);
-var transaction_2 = __webpack_require__(117);
-var received_1 = __webpack_require__(119);
-var send_1 = __webpack_require__(121);
-var qrcode_1 = __webpack_require__(123);
-var number_1 = __webpack_require__(125);
-var price_1 = __webpack_require__(127);
-var success_1 = __webpack_require__(129);
-var withdrawal_2 = __webpack_require__(131);
-var deposit_2 = __webpack_require__(133);
-var transaction_3 = __webpack_require__(135);
-var withdrawal_3 = __webpack_require__(137);
-var deposit_3 = __webpack_require__(139);
-var profile_1 = __webpack_require__(141);
-var signup_1 = __webpack_require__(143);
-var signin_1 = __webpack_require__(145);
-var navbar_1 = __webpack_require__(147);
-var proxy_1 = __webpack_require__(149);
-var link_proxy_1 = __webpack_require__(151);
-var trade_history_1 = __webpack_require__(153);
-var trade_view_1 = __webpack_require__(155);
-var order_book_1 = __webpack_require__(157);
-var order_3 = __webpack_require__(159);
-var trade_1 = __webpack_require__(161);
-var trade_2 = __webpack_require__(163);
-var trade_3 = __webpack_require__(165);
-var loading_1 = __webpack_require__(167);
-var error_1 = __webpack_require__(169);
-var alert_1 = __webpack_require__(171);
-var home_2 = __webpack_require__(173);
-var app_1 = __webpack_require__(30);
-var framework_1 = __webpack_require__(175);
-var order_list_1 = __webpack_require__(176);
-var logo_1 = __webpack_require__(178);
+var tradingview_1 = __webpack_require__(31);
+var candle_1 = __webpack_require__(66);
+var depth_1 = __webpack_require__(68);
+var slider_1 = __webpack_require__(70);
+var code_1 = __webpack_require__(72);
+var bar_down_1 = __webpack_require__(74);
+var cert_1 = __webpack_require__(76);
+var home_1 = __webpack_require__(78);
+var forgot_1 = __webpack_require__(80);
+var change_password_1 = __webpack_require__(29);
+var pagination_1 = __webpack_require__(84);
+var order_1 = __webpack_require__(86);
+var select_1 = __webpack_require__(88);
+var hamburger_1 = __webpack_require__(90);
+var order_2 = __webpack_require__(92);
+var down_1 = __webpack_require__(94);
+var up_1 = __webpack_require__(96);
+var arrow_1 = __webpack_require__(98);
+var wallet_1 = __webpack_require__(100);
+var wallet_list_1 = __webpack_require__(102);
+var transaction_1 = __webpack_require__(104);
+var sent_1 = __webpack_require__(106);
+var wallet_2 = __webpack_require__(108);
+var withdrawal_1 = __webpack_require__(110);
+var deposit_1 = __webpack_require__(112);
+var transaction_2 = __webpack_require__(114);
+var received_1 = __webpack_require__(116);
+var send_1 = __webpack_require__(118);
+var qrcode_1 = __webpack_require__(120);
+var number_1 = __webpack_require__(122);
+var price_1 = __webpack_require__(124);
+var success_1 = __webpack_require__(126);
+var withdrawal_2 = __webpack_require__(128);
+var deposit_2 = __webpack_require__(130);
+var transaction_3 = __webpack_require__(132);
+var withdrawal_3 = __webpack_require__(134);
+var deposit_3 = __webpack_require__(136);
+var profile_1 = __webpack_require__(138);
+var signup_1 = __webpack_require__(140);
+var signin_1 = __webpack_require__(142);
+var navbar_1 = __webpack_require__(144);
+var proxy_1 = __webpack_require__(146);
+var link_proxy_1 = __webpack_require__(148);
+var trade_history_1 = __webpack_require__(150);
+var trade_view_1 = __webpack_require__(152);
+var order_book_1 = __webpack_require__(154);
+var order_3 = __webpack_require__(156);
+var trade_1 = __webpack_require__(158);
+var trade_2 = __webpack_require__(160);
+var trade_3 = __webpack_require__(162);
+var loading_1 = __webpack_require__(164);
+var error_1 = __webpack_require__(166);
+var alert_1 = __webpack_require__(168);
+var home_2 = __webpack_require__(170);
+var app_1 = __webpack_require__(28);
+var framework_1 = __webpack_require__(172);
+var order_list_1 = __webpack_require__(173);
+var logo_1 = __webpack_require__(175);
 framework_1.Framework.initModules([
     home_2.HomePage,
     trade_3.TradePage,
@@ -15416,7 +15259,7 @@ app_1.App.init(function () {
 
 
 /***/ }),
-/* 33 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15454,8 +15297,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var watch_1 = __webpack_require__(7);
 var service_1 = __webpack_require__(2);
 var component_1 = __webpack_require__(0);
-var config_1 = __webpack_require__(65);
-var datafeed_1 = __webpack_require__(66);
+var config_1 = __webpack_require__(62);
+var datafeed_1 = __webpack_require__(63);
 var TradingviewChartComponent = /** @class */ (function (_super) {
     __extends(TradingviewChartComponent, _super);
     function TradingviewChartComponent() {
@@ -15491,7 +15334,7 @@ var TradingviewChartComponent = /** @class */ (function (_super) {
         component_1.Prop()
     ], TradingviewChartComponent.prototype, "productId", void 0);
     TradingviewChartComponent = __decorate([
-        component_1.Dom('chart-tradingview', __webpack_require__(67)())
+        component_1.Dom('chart-tradingview', __webpack_require__(64)())
     ], TradingviewChartComponent);
     return TradingviewChartComponent;
 }(component_1.Component));
@@ -15499,7 +15342,7 @@ exports.TradingviewChartComponent = TradingviewChartComponent;
 
 
 /***/ }),
-/* 34 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15528,9 +15371,9 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var trade_1 = __webpack_require__(18);
-var websocket_1 = __webpack_require__(16);
-var store_1 = __webpack_require__(21);
+var trade_1 = __webpack_require__(16);
+var websocket_1 = __webpack_require__(14);
+var store_1 = __webpack_require__(19);
 var http_1 = __webpack_require__(3);
 var AccountStore = /** @class */ (function (_super) {
     __extends(AccountStore, _super);
@@ -15621,7 +15464,7 @@ exports.AccountStore = AccountStore;
 
 
 /***/ }),
-/* 35 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var scope = (typeof global !== "undefined" && global) ||
@@ -15677,7 +15520,7 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(36);
+__webpack_require__(34);
 // On some exotic environments, it's not clear which object `setimmediate` was
 // able to install onto.  Search each possibility in the same order as the
 // `setimmediate` library.
@@ -15691,7 +15534,7 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
 
 /***/ }),
-/* 36 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -15884,7 +15727,7 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(8)))
 
 /***/ }),
-/* 37 */
+/* 35 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -19045,7 +18888,7 @@ if (inBrowser && window.Vue) {
 /* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(8)))
 
 /***/ }),
-/* 38 */
+/* 36 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -20305,7 +20148,7 @@ var index = {
 /* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(9), __webpack_require__(8)))
 
 /***/ }),
-/* 39 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20348,7 +20191,7 @@ exports.SocketMsgBuffer = SocketMsgBuffer;
 
 
 /***/ }),
-/* 40 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20410,7 +20253,7 @@ exports.FileService = FileService;
 
 
 /***/ }),
-/* 41 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20429,7 +20272,7 @@ exports.FileService = FileService;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 Object.defineProperty(exports, "__esModule", { value: true });
-var axios_1 = __webpack_require__(42);
+var axios_1 = __webpack_require__(40);
 var Request = /** @class */ (function () {
     function Request() {
         axios_1.default.interceptors.request.use(function (config) {
@@ -20489,23 +20332,23 @@ exports.Request = Request;
 
 
 /***/ }),
-/* 42 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(43);
+module.exports = __webpack_require__(41);
 
 /***/ }),
-/* 43 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils = __webpack_require__(4);
-var bind = __webpack_require__(22);
-var Axios = __webpack_require__(44);
-var mergeConfig = __webpack_require__(28);
-var defaults = __webpack_require__(13);
+var bind = __webpack_require__(20);
+var Axios = __webpack_require__(42);
+var mergeConfig = __webpack_require__(26);
+var defaults = __webpack_require__(23);
 
 /**
  * Create an instance of Axios
@@ -20523,11 +20366,6 @@ function createInstance(defaultConfig) {
   // Copy context to instance
   utils.extend(instance, context);
 
-  // Factory for creating new instances
-  instance.create = function create(instanceConfig) {
-    return createInstance(mergeConfig(defaultConfig, instanceConfig));
-  };
-
   return instance;
 }
 
@@ -20537,20 +20375,21 @@ var axios = createInstance(defaults);
 // Expose Axios class to allow class inheritance
 axios.Axios = Axios;
 
+// Factory for creating new instances
+axios.create = function create(instanceConfig) {
+  return createInstance(mergeConfig(axios.defaults, instanceConfig));
+};
+
 // Expose Cancel & CancelToken
-axios.Cancel = __webpack_require__(14);
-axios.CancelToken = __webpack_require__(57);
-axios.isCancel = __webpack_require__(27);
-axios.VERSION = __webpack_require__(29).version;
+axios.Cancel = __webpack_require__(27);
+axios.CancelToken = __webpack_require__(55);
+axios.isCancel = __webpack_require__(22);
 
 // Expose all/spread
 axios.all = function all(promises) {
   return Promise.all(promises);
 };
-axios.spread = __webpack_require__(58);
-
-// Expose isAxiosError
-axios.isAxiosError = __webpack_require__(59);
+axios.spread = __webpack_require__(56);
 
 module.exports = axios;
 
@@ -20559,20 +20398,18 @@ module.exports.default = axios;
 
 
 /***/ }),
-/* 44 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils = __webpack_require__(4);
-var buildURL = __webpack_require__(23);
-var InterceptorManager = __webpack_require__(45);
-var dispatchRequest = __webpack_require__(46);
-var mergeConfig = __webpack_require__(28);
-var validator = __webpack_require__(56);
+var buildURL = __webpack_require__(21);
+var InterceptorManager = __webpack_require__(43);
+var dispatchRequest = __webpack_require__(44);
+var mergeConfig = __webpack_require__(26);
 
-var validators = validator.validators;
 /**
  * Create a new instance of Axios
  *
@@ -20612,71 +20449,20 @@ Axios.prototype.request = function request(config) {
     config.method = 'get';
   }
 
-  var transitional = config.transitional;
+  // Hook up interceptors middleware
+  var chain = [dispatchRequest, undefined];
+  var promise = Promise.resolve(config);
 
-  if (transitional !== undefined) {
-    validator.assertOptions(transitional, {
-      silentJSONParsing: validators.transitional(validators.boolean),
-      forcedJSONParsing: validators.transitional(validators.boolean),
-      clarifyTimeoutError: validators.transitional(validators.boolean)
-    }, false);
-  }
-
-  // filter out skipped interceptors
-  var requestInterceptorChain = [];
-  var synchronousRequestInterceptors = true;
   this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
-    if (typeof interceptor.runWhen === 'function' && interceptor.runWhen(config) === false) {
-      return;
-    }
-
-    synchronousRequestInterceptors = synchronousRequestInterceptors && interceptor.synchronous;
-
-    requestInterceptorChain.unshift(interceptor.fulfilled, interceptor.rejected);
+    chain.unshift(interceptor.fulfilled, interceptor.rejected);
   });
 
-  var responseInterceptorChain = [];
   this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
-    responseInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
+    chain.push(interceptor.fulfilled, interceptor.rejected);
   });
 
-  var promise;
-
-  if (!synchronousRequestInterceptors) {
-    var chain = [dispatchRequest, undefined];
-
-    Array.prototype.unshift.apply(chain, requestInterceptorChain);
-    chain = chain.concat(responseInterceptorChain);
-
-    promise = Promise.resolve(config);
-    while (chain.length) {
-      promise = promise.then(chain.shift(), chain.shift());
-    }
-
-    return promise;
-  }
-
-
-  var newConfig = config;
-  while (requestInterceptorChain.length) {
-    var onFulfilled = requestInterceptorChain.shift();
-    var onRejected = requestInterceptorChain.shift();
-    try {
-      newConfig = onFulfilled(newConfig);
-    } catch (error) {
-      onRejected(error);
-      break;
-    }
-  }
-
-  try {
-    promise = dispatchRequest(newConfig);
-  } catch (error) {
-    return Promise.reject(error);
-  }
-
-  while (responseInterceptorChain.length) {
-    promise = promise.then(responseInterceptorChain.shift(), responseInterceptorChain.shift());
+  while (chain.length) {
+    promise = promise.then(chain.shift(), chain.shift());
   }
 
   return promise;
@@ -20691,10 +20477,9 @@ Axios.prototype.getUri = function getUri(config) {
 utils.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData(method) {
   /*eslint func-names:0*/
   Axios.prototype[method] = function(url, config) {
-    return this.request(mergeConfig(config || {}, {
+    return this.request(utils.merge(config || {}, {
       method: method,
-      url: url,
-      data: (config || {}).data
+      url: url
     }));
   };
 });
@@ -20702,7 +20487,7 @@ utils.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData
 utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
   /*eslint func-names:0*/
   Axios.prototype[method] = function(url, data, config) {
-    return this.request(mergeConfig(config || {}, {
+    return this.request(utils.merge(config || {}, {
       method: method,
       url: url,
       data: data
@@ -20714,7 +20499,7 @@ module.exports = Axios;
 
 
 /***/ }),
-/* 45 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20734,12 +20519,10 @@ function InterceptorManager() {
  *
  * @return {Number} An ID used to remove interceptor later
  */
-InterceptorManager.prototype.use = function use(fulfilled, rejected, options) {
+InterceptorManager.prototype.use = function use(fulfilled, rejected) {
   this.handlers.push({
     fulfilled: fulfilled,
-    rejected: rejected,
-    synchronous: options ? options.synchronous : false,
-    runWhen: options ? options.runWhen : null
+    rejected: rejected
   });
   return this.handlers.length - 1;
 };
@@ -20775,17 +20558,16 @@ module.exports = InterceptorManager;
 
 
 /***/ }),
-/* 46 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils = __webpack_require__(4);
-var transformData = __webpack_require__(47);
-var isCancel = __webpack_require__(27);
-var defaults = __webpack_require__(13);
-var Cancel = __webpack_require__(14);
+var transformData = __webpack_require__(45);
+var isCancel = __webpack_require__(22);
+var defaults = __webpack_require__(23);
 
 /**
  * Throws a `Cancel` if cancellation has been requested.
@@ -20793,10 +20575,6 @@ var Cancel = __webpack_require__(14);
 function throwIfCancellationRequested(config) {
   if (config.cancelToken) {
     config.cancelToken.throwIfRequested();
-  }
-
-  if (config.signal && config.signal.aborted) {
-    throw new Cancel('canceled');
   }
 }
 
@@ -20813,8 +20591,7 @@ module.exports = function dispatchRequest(config) {
   config.headers = config.headers || {};
 
   // Transform request data
-  config.data = transformData.call(
-    config,
+  config.data = transformData(
     config.data,
     config.headers,
     config.transformRequest
@@ -20840,8 +20617,7 @@ module.exports = function dispatchRequest(config) {
     throwIfCancellationRequested(config);
 
     // Transform response data
-    response.data = transformData.call(
-      config,
+    response.data = transformData(
       response.data,
       response.headers,
       config.transformResponse
@@ -20854,8 +20630,7 @@ module.exports = function dispatchRequest(config) {
 
       // Transform response data
       if (reason && reason.response) {
-        reason.response.data = transformData.call(
-          config,
+        reason.response.data = transformData(
           reason.response.data,
           reason.response.headers,
           config.transformResponse
@@ -20869,14 +20644,13 @@ module.exports = function dispatchRequest(config) {
 
 
 /***/ }),
-/* 47 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils = __webpack_require__(4);
-var defaults = __webpack_require__(13);
 
 /**
  * Transform the data for a request or a response
@@ -20887,10 +20661,9 @@ var defaults = __webpack_require__(13);
  * @returns {*} The resulting transformed data
  */
 module.exports = function transformData(data, headers, fns) {
-  var context = this || defaults;
   /*eslint no-param-reassign:0*/
   utils.forEach(fns, function transform(fn) {
-    data = fn.call(context, data, headers);
+    data = fn(data, headers);
   });
 
   return data;
@@ -20898,7 +20671,7 @@ module.exports = function transformData(data, headers, fns) {
 
 
 /***/ }),
-/* 48 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20917,13 +20690,13 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
 
 
 /***/ }),
-/* 49 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var createError = __webpack_require__(26);
+var createError = __webpack_require__(25);
 
 /**
  * Resolve or reject a Promise based on response status.
@@ -20934,7 +20707,7 @@ var createError = __webpack_require__(26);
  */
 module.exports = function settle(resolve, reject, response) {
   var validateStatus = response.config.validateStatus;
-  if (!response.status || !validateStatus || validateStatus(response.status)) {
+  if (!validateStatus || validateStatus(response.status)) {
     resolve(response);
   } else {
     reject(createError(
@@ -20949,74 +20722,63 @@ module.exports = function settle(resolve, reject, response) {
 
 
 /***/ }),
-/* 50 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var utils = __webpack_require__(4);
+/**
+ * Update an Error with the specified config, error code, and response.
+ *
+ * @param {Error} error The error to update.
+ * @param {Object} config The config.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ * @param {Object} [request] The request.
+ * @param {Object} [response] The response.
+ * @returns {Error} The error.
+ */
+module.exports = function enhanceError(error, config, code, request, response) {
+  error.config = config;
+  if (code) {
+    error.code = code;
+  }
 
-module.exports = (
-  utils.isStandardBrowserEnv() ?
+  error.request = request;
+  error.response = response;
+  error.isAxiosError = true;
 
-  // Standard browser envs support document.cookie
-    (function standardBrowserEnv() {
-      return {
-        write: function write(name, value, expires, path, domain, secure) {
-          var cookie = [];
-          cookie.push(name + '=' + encodeURIComponent(value));
-
-          if (utils.isNumber(expires)) {
-            cookie.push('expires=' + new Date(expires).toGMTString());
-          }
-
-          if (utils.isString(path)) {
-            cookie.push('path=' + path);
-          }
-
-          if (utils.isString(domain)) {
-            cookie.push('domain=' + domain);
-          }
-
-          if (secure === true) {
-            cookie.push('secure');
-          }
-
-          document.cookie = cookie.join('; ');
-        },
-
-        read: function read(name) {
-          var match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
-          return (match ? decodeURIComponent(match[3]) : null);
-        },
-
-        remove: function remove(name) {
-          this.write(name, '', Date.now() - 86400000);
-        }
-      };
-    })() :
-
-  // Non standard browser env (web workers, react-native) lack needed support.
-    (function nonStandardBrowserEnv() {
-      return {
-        write: function write() {},
-        read: function read() { return null; },
-        remove: function remove() {}
-      };
-    })()
-);
+  error.toJSON = function() {
+    return {
+      // Standard
+      message: this.message,
+      name: this.name,
+      // Microsoft
+      description: this.description,
+      number: this.number,
+      // Mozilla
+      fileName: this.fileName,
+      lineNumber: this.lineNumber,
+      columnNumber: this.columnNumber,
+      stack: this.stack,
+      // Axios
+      config: this.config,
+      code: this.code
+    };
+  };
+  return error;
+};
 
 
 /***/ }),
-/* 51 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var isAbsoluteURL = __webpack_require__(52);
-var combineURLs = __webpack_require__(53);
+var isAbsoluteURL = __webpack_require__(50);
+var combineURLs = __webpack_require__(51);
 
 /**
  * Creates a new URL by combining the baseURL with the requestedURL,
@@ -21036,7 +20798,7 @@ module.exports = function buildFullPath(baseURL, requestedURL) {
 
 
 /***/ }),
-/* 52 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21057,7 +20819,7 @@ module.exports = function isAbsoluteURL(url) {
 
 
 /***/ }),
-/* 53 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21078,7 +20840,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
 
 
 /***/ }),
-/* 54 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21138,7 +20900,7 @@ module.exports = function parseHeaders(headers) {
 
 
 /***/ }),
-/* 55 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21213,102 +20975,73 @@ module.exports = (
 
 
 /***/ }),
-/* 56 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var VERSION = __webpack_require__(29).version;
+var utils = __webpack_require__(4);
 
-var validators = {};
+module.exports = (
+  utils.isStandardBrowserEnv() ?
 
-// eslint-disable-next-line func-names
-['object', 'boolean', 'number', 'function', 'string', 'symbol'].forEach(function(type, i) {
-  validators[type] = function validator(thing) {
-    return typeof thing === type || 'a' + (i < 1 ? 'n ' : ' ') + type;
-  };
-});
+  // Standard browser envs support document.cookie
+    (function standardBrowserEnv() {
+      return {
+        write: function write(name, value, expires, path, domain, secure) {
+          var cookie = [];
+          cookie.push(name + '=' + encodeURIComponent(value));
 
-var deprecatedWarnings = {};
+          if (utils.isNumber(expires)) {
+            cookie.push('expires=' + new Date(expires).toGMTString());
+          }
 
-/**
- * Transitional option validator
- * @param {function|boolean?} validator - set to false if the transitional option has been removed
- * @param {string?} version - deprecated version / removed since version
- * @param {string?} message - some message with additional info
- * @returns {function}
- */
-validators.transitional = function transitional(validator, version, message) {
-  function formatMessage(opt, desc) {
-    return '[Axios v' + VERSION + '] Transitional option \'' + opt + '\'' + desc + (message ? '. ' + message : '');
-  }
+          if (utils.isString(path)) {
+            cookie.push('path=' + path);
+          }
 
-  // eslint-disable-next-line func-names
-  return function(value, opt, opts) {
-    if (validator === false) {
-      throw new Error(formatMessage(opt, ' has been removed' + (version ? ' in ' + version : '')));
-    }
+          if (utils.isString(domain)) {
+            cookie.push('domain=' + domain);
+          }
 
-    if (version && !deprecatedWarnings[opt]) {
-      deprecatedWarnings[opt] = true;
-      // eslint-disable-next-line no-console
-      console.warn(
-        formatMessage(
-          opt,
-          ' has been deprecated since v' + version + ' and will be removed in the near future'
-        )
-      );
-    }
+          if (secure === true) {
+            cookie.push('secure');
+          }
 
-    return validator ? validator(value, opt, opts) : true;
-  };
-};
+          document.cookie = cookie.join('; ');
+        },
 
-/**
- * Assert object's properties type
- * @param {object} options
- * @param {object} schema
- * @param {boolean?} allowUnknown
- */
+        read: function read(name) {
+          var match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
+          return (match ? decodeURIComponent(match[3]) : null);
+        },
 
-function assertOptions(options, schema, allowUnknown) {
-  if (typeof options !== 'object') {
-    throw new TypeError('options must be an object');
-  }
-  var keys = Object.keys(options);
-  var i = keys.length;
-  while (i-- > 0) {
-    var opt = keys[i];
-    var validator = schema[opt];
-    if (validator) {
-      var value = options[opt];
-      var result = value === undefined || validator(value, opt, options);
-      if (result !== true) {
-        throw new TypeError('option ' + opt + ' must be ' + result);
-      }
-      continue;
-    }
-    if (allowUnknown !== true) {
-      throw Error('Unknown option ' + opt);
-    }
-  }
-}
+        remove: function remove(name) {
+          this.write(name, '', Date.now() - 86400000);
+        }
+      };
+    })() :
 
-module.exports = {
-  assertOptions: assertOptions,
-  validators: validators
-};
+  // Non standard browser env (web workers, react-native) lack needed support.
+    (function nonStandardBrowserEnv() {
+      return {
+        write: function write() {},
+        read: function read() { return null; },
+        remove: function remove() {}
+      };
+    })()
+);
 
 
 /***/ }),
-/* 57 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Cancel = __webpack_require__(14);
+var Cancel = __webpack_require__(27);
 
 /**
  * A `CancelToken` is an object that can be used to request cancellation of an operation.
@@ -21322,42 +21055,11 @@ function CancelToken(executor) {
   }
 
   var resolvePromise;
-
   this.promise = new Promise(function promiseExecutor(resolve) {
     resolvePromise = resolve;
   });
 
   var token = this;
-
-  // eslint-disable-next-line func-names
-  this.promise.then(function(cancel) {
-    if (!token._listeners) return;
-
-    var i;
-    var l = token._listeners.length;
-
-    for (i = 0; i < l; i++) {
-      token._listeners[i](cancel);
-    }
-    token._listeners = null;
-  });
-
-  // eslint-disable-next-line func-names
-  this.promise.then = function(onfulfilled) {
-    var _resolve;
-    // eslint-disable-next-line func-names
-    var promise = new Promise(function(resolve) {
-      token.subscribe(resolve);
-      _resolve = resolve;
-    }).then(onfulfilled);
-
-    promise.cancel = function reject() {
-      token.unsubscribe(_resolve);
-    };
-
-    return promise;
-  };
-
   executor(function cancel(message) {
     if (token.reason) {
       // Cancellation has already been requested
@@ -21375,37 +21077,6 @@ function CancelToken(executor) {
 CancelToken.prototype.throwIfRequested = function throwIfRequested() {
   if (this.reason) {
     throw this.reason;
-  }
-};
-
-/**
- * Subscribe to the cancel signal
- */
-
-CancelToken.prototype.subscribe = function subscribe(listener) {
-  if (this.reason) {
-    listener(this.reason);
-    return;
-  }
-
-  if (this._listeners) {
-    this._listeners.push(listener);
-  } else {
-    this._listeners = [listener];
-  }
-};
-
-/**
- * Unsubscribe from the cancel signal
- */
-
-CancelToken.prototype.unsubscribe = function unsubscribe(listener) {
-  if (!this._listeners) {
-    return;
-  }
-  var index = this._listeners.indexOf(listener);
-  if (index !== -1) {
-    this._listeners.splice(index, 1);
   }
 };
 
@@ -21428,7 +21099,7 @@ module.exports = CancelToken;
 
 
 /***/ }),
-/* 58 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21462,25 +21133,7 @@ module.exports = function spread(callback) {
 
 
 /***/ }),
-/* 59 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Determines whether the payload is an error thrown by Axios
- *
- * @param {*} payload The value to test
- * @returns {boolean} True if the payload is an error thrown by Axios, otherwise false
- */
-module.exports = function isAxiosError(payload) {
-  return (typeof payload === 'object') && (payload.isAxiosError === true);
-};
-
-
-/***/ }),
-/* 60 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21524,7 +21177,7 @@ exports.ServerService = ServerService;
 
 
 /***/ }),
-/* 61 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21599,7 +21252,7 @@ exports.OrderService = OrderService;
 
 
 /***/ }),
-/* 62 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21649,7 +21302,7 @@ exports.TradeService = TradeService;
 
 
 /***/ }),
-/* 63 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21755,7 +21408,7 @@ exports.AccountService = AccountService;
 
 
 /***/ }),
-/* 64 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process, global) {/*! *****************************************************************************
@@ -22893,7 +22546,7 @@ var Reflect;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8), __webpack_require__(9)))
 
 /***/ }),
-/* 65 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23044,7 +22697,7 @@ exports.getTradingViewConfig = getTradingViewConfig;
 
 
 /***/ }),
-/* 66 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23643,7 +23296,7 @@ var QuotesPulseUpdater = /** @class */ (function () {
 
 
 /***/ }),
-/* 67 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -23657,13 +23310,13 @@ buf.push("<div class=\"chart panel chart-tradingview\"><div ref=\"container\" cl
 }
 
 /***/ }),
-/* 68 */
+/* 65 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 69 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24067,7 +23720,7 @@ var CandleChartComponent = /** @class */ (function (_super) {
         component_1.Watch('chartTypeSelected')
     ], CandleChartComponent.prototype, "onChartTypeSelected", null);
     CandleChartComponent = __decorate([
-        component_1.Dom('chart-candle', __webpack_require__(70)())
+        component_1.Dom('chart-candle', __webpack_require__(67)())
     ], CandleChartComponent);
     return CandleChartComponent;
 }(component_1.Component));
@@ -24075,7 +23728,7 @@ exports.CandleChartComponent = CandleChartComponent;
 
 
 /***/ }),
-/* 70 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -24089,7 +23742,7 @@ buf.push("<div class=\"chart panel chart-candle\"><div class=\"chart-menu\"><v-s
 }
 
 /***/ }),
-/* 71 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24342,7 +23995,7 @@ var DepthChartComponent = /** @class */ (function (_super) {
         component_1.Prop()
     ], DepthChartComponent.prototype, "productId", void 0);
     DepthChartComponent = __decorate([
-        component_1.Dom('chart-depth', __webpack_require__(72)())
+        component_1.Dom('chart-depth', __webpack_require__(69)())
     ], DepthChartComponent);
     return DepthChartComponent;
 }(component_1.Component));
@@ -24350,7 +24003,7 @@ exports.DepthChartComponent = DepthChartComponent;
 
 
 /***/ }),
-/* 72 */
+/* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -24364,7 +24017,7 @@ buf.push("<div class=\"chart panel chart-depth\"><div class=\"aggregation\"><div
 }
 
 /***/ }),
-/* 73 */
+/* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24417,7 +24070,7 @@ var ChartSliderComponent = /** @class */ (function (_super) {
         configurable: true
     });
     ChartSliderComponent = __decorate([
-        component_1.Dom('chart-slider', __webpack_require__(74)())
+        component_1.Dom('chart-slider', __webpack_require__(71)())
     ], ChartSliderComponent);
     return ChartSliderComponent;
 }(component_1.Component));
@@ -24425,7 +24078,7 @@ exports.ChartSliderComponent = ChartSliderComponent;
 
 
 /***/ }),
-/* 74 */
+/* 71 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -24439,7 +24092,7 @@ buf.push("<div class=\"chart-slider\"><div :style=\"'width: ' +products.length*2
 }
 
 /***/ }),
-/* 75 */
+/* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24484,7 +24137,7 @@ var IconCodeComponent = /** @class */ (function (_super) {
         _super.prototype.mounted.call(this);
     };
     IconCodeComponent = __decorate([
-        component_1.Dom('icon-code', __webpack_require__(76))
+        component_1.Dom('icon-code', __webpack_require__(73))
     ], IconCodeComponent);
     return IconCodeComponent;
 }(component_1.Component));
@@ -24492,13 +24145,13 @@ exports.IconCodeComponent = IconCodeComponent;
 
 
 /***/ }),
-/* 76 */
+/* 73 */
 /***/ (function(module, exports) {
 
 module.exports = "<span class=\"icon icon-code\">\r\n    <svg width=\"64\" height=\"64\" viewBox=\"0 0 64 64\" theme=\"[object Object]\" class=\"sc-bIqbHp cnfXYo\"><g transform=\"translate(2 6)\" fill-rule=\"nonzero\" fill=\"none\"><path d=\"M59 5c0-2.21-1.79-4-4-4H5C2.79 1 1 2.79 1 5v5h58V5z\" fill=\"#9BC2EC\"></path><path d=\"M59 11H1c-.55 0-1-.45-1-1V5c0-2.76 2.24-5 5-5h50c2.76 0 5 2.24 5 5v5c0 .55-.45 1-1 1zM2 9h56V5c0-1.65-1.35-3-3-3H5C3.35 2 2 3.35 2 5v4z\" fill=\"#0667D0\"></path><path d=\"M55 53H5c-2.76 0-5-2.24-5-5V10c0-.55.45-1 1-1h58c.55 0 1 .45 1 1v38c0 2.76-2.24 5-5 5zM2 11v37c0 1.65 1.35 3 3 3h50c1.65 0 3-1.35 3-3V11H2z\" fill=\"#0667D0\"></path><circle fill=\"#0667D0\" cx=\"6.5\" cy=\"5.5\" r=\"1.5\"></circle><circle fill=\"#0667D0\" cx=\"11.5\" cy=\"5.5\" r=\"1.5\"></circle><circle fill=\"#0667D0\" cx=\"16.5\" cy=\"5.5\" r=\"1.5\"></circle><g fill=\"#0667D0\"><path d=\"M38 42a1.001 1.001 0 0 1-.64-1.77L48.44 31l-11.08-9.23c-.42-.35-.48-.98-.13-1.41.35-.42.98-.48 1.41-.13l12 10c.23.19.36.47.36.77 0 .3-.13.58-.36.77l-12 10c-.19.15-.41.23-.64.23zM22 42c-.23 0-.45-.08-.64-.23l-12-10A.992.992 0 0 1 9 31c0-.3.13-.58.36-.77l12-10c.42-.35 1.05-.3 1.41.13.36.43.3 1.05-.13 1.41L11.56 31l11.08 9.23c.42.35.48.98.13 1.41A.99.99 0 0 1 22 42z\"></path></g><path d=\"M27.05 43c-.09 0-.17-.01-.26-.03-.53-.14-.85-.69-.71-1.22l5.89-22c.14-.53.69-.85 1.22-.71s.85.69.71 1.22l-5.89 22c-.11.45-.52.74-.96.74z\" fill=\"#0667D0\"></path></g></svg>\r\n</span>";
 
 /***/ }),
-/* 77 */
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24543,7 +24196,7 @@ var IconBarDownComponent = /** @class */ (function (_super) {
         _super.prototype.mounted.call(this);
     };
     IconBarDownComponent = __decorate([
-        component_1.Dom('icon-bar-down', __webpack_require__(78))
+        component_1.Dom('icon-bar-down', __webpack_require__(75))
     ], IconBarDownComponent);
     return IconBarDownComponent;
 }(component_1.Component));
@@ -24551,13 +24204,13 @@ exports.IconBarDownComponent = IconBarDownComponent;
 
 
 /***/ }),
-/* 78 */
+/* 75 */
 /***/ (function(module, exports) {
 
 module.exports = "<span class=\"icon icon-bar-down\">\r\n    <svg width=\"64\" height=\"64\" viewBox=\"0 0 64 64\" theme=\"[object Object]\" class=\"sc-hMrMfs brfJKb\"><g fill-rule=\"nonzero\" fill=\"none\"><path d=\"M19 53H5c-.55 0-1-.45-1-1s.45-1 1-1h14c.55 0 1 .45 1 1s-.45 1-1 1z\" fill=\"#0667D0\"></path><path fill=\"#FFF\" d=\"M25 32h14v20H25z\"></path><path d=\"M39 53H25c-.55 0-1-.45-1-1V32c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v20c0 .55-.45 1-1 1zm-13-2h12V33H26v18z\" fill=\"#0667D0\"></path><g><path fill=\"#9BC2EC\" d=\"M45 12h14v40H45z\"></path><path d=\"M59 53H45c-.55 0-1-.45-1-1V12c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v40c0 .55-.45 1-1 1zm-13-2h12V13H46v38z\" fill=\"#0667D0\"></path></g><path d=\"M12 47c-.55 0-1-.45-1-1V12c0-.55.45-1 1-1s1 .45 1 1v34c0 .55-.45 1-1 1z\" fill=\"#0667D0\"></path><path d=\"M12 47c-.26 0-.51-.1-.71-.29l-4.24-4.24a.996.996 0 1 1 1.41-1.41L12 44.59l3.54-3.54a.996.996 0 1 1 1.41 1.41l-4.24 4.24c-.2.2-.45.3-.71.3z\" fill=\"#0667D0\"></path></g></svg>\r\n</span>";
 
 /***/ }),
-/* 79 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24602,7 +24255,7 @@ var IconCertComponent = /** @class */ (function (_super) {
         _super.prototype.mounted.call(this);
     };
     IconCertComponent = __decorate([
-        component_1.Dom('icon-cert', __webpack_require__(80))
+        component_1.Dom('icon-cert', __webpack_require__(77))
     ], IconCertComponent);
     return IconCertComponent;
 }(component_1.Component));
@@ -24610,13 +24263,13 @@ exports.IconCertComponent = IconCertComponent;
 
 
 /***/ }),
-/* 80 */
+/* 77 */
 /***/ (function(module, exports) {
 
 module.exports = "<span class=\"icon icon-cert\">\r\n    <svg width=\"64\" height=\"64\" viewBox=\"0 0 64 64\" theme=\"[object Object]\" class=\"sc-drlKqa hUoSsr\"><g fill-rule=\"nonzero\" fill=\"none\"><path d=\"M48 55H7c-.55 0-1-.45-1-1V16c0-.27.11-.52.29-.71l12-12c.19-.18.44-.29.71-.29h29c.55 0 1 .45 1 1v50c0 .55-.45 1-1 1zM8 53h39V5H19.41L8 16.41V53z\" fill=\"#0667D0\"></path><path fill=\"#FFF\" d=\"M53 42H43v18l5.26-4L53 60z\"></path><path d=\"M53 61c-.23 0-.46-.08-.65-.24l-4.13-3.48-4.62 3.52c-.3.23-.71.27-1.05.1-.33-.17-.55-.52-.55-.9V42c0-.55.45-1 1-1h10c.55 0 1 .45 1 1v18c0 .39-.23.74-.58.91-.13.06-.28.09-.42.09zm-9-18v14.98l3.66-2.78c.37-.28.89-.27 1.25.03L52 57.85V43h-8z\" fill=\"#0667D0\"></path><g transform=\"translate(38 29)\"><circle fill=\"#9BC2EC\" cx=\"10\" cy=\"10\" r=\"9\"></circle><path d=\"M10 20C4.49 20 0 15.51 0 10S4.49 0 10 0s10 4.49 10 10-4.49 10-10 10zm0-18c-4.41 0-8 3.59-8 8s3.59 8 8 8 8-3.59 8-8-3.59-8-8-8z\" fill=\"#0667D0\"></path></g><path fill=\"#9BC2EC\" d=\"M19 16H7L19 4z\"></path><path d=\"M19 17H7c-.4 0-.77-.24-.92-.62-.15-.37-.07-.8.22-1.09l12-12c.29-.29.71-.37 1.09-.22.37.16.61.53.61.93v12c0 .55-.45 1-1 1zm-9.59-2H18V6.41L9.41 15zM42 25H13c-.55 0-1-.45-1-1s.45-1 1-1h29c.55 0 1 .45 1 1s-.45 1-1 1zM33 35H13c-.55 0-1-.45-1-1s.45-1 1-1h20c.55 0 1 .45 1 1s-.45 1-1 1zM33 45H13c-.55 0-1-.45-1-1s.45-1 1-1h20c.55 0 1 .45 1 1s-.45 1-1 1z\" fill=\"#0667D0\"></path></g></svg>\r\n</span>";
 
 /***/ }),
-/* 81 */
+/* 78 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24685,7 +24338,7 @@ var NavbarHomeComponent = /** @class */ (function (_super) {
         component_1.Prop()
     ], NavbarHomeComponent.prototype, "active", void 0);
     NavbarHomeComponent = __decorate([
-        component_1.Dom('header-home', __webpack_require__(82)())
+        component_1.Dom('header-home', __webpack_require__(79)())
     ], NavbarHomeComponent);
     return NavbarHomeComponent;
 }(component_1.Component));
@@ -24693,7 +24346,7 @@ exports.NavbarHomeComponent = NavbarHomeComponent;
 
 
 /***/ }),
-/* 82 */
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -24707,7 +24360,7 @@ buf.push("<div class=\"header header-home\"><div class=\"navbar-inner\"><logo th
 }
 
 /***/ }),
-/* 83 */
+/* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24785,7 +24438,7 @@ var AccountForgotPage = /** @class */ (function (_super) {
         }
     };
     AccountForgotPage = __decorate([
-        page_1.Route('/account/forgot', __webpack_require__(85)())
+        page_1.Route('/account/forgot', __webpack_require__(82)())
     ], AccountForgotPage);
     return AccountForgotPage;
 }(page_1.Page));
@@ -24793,7 +24446,7 @@ exports.AccountForgotPage = AccountForgotPage;
 
 
 /***/ }),
-/* 84 */
+/* 81 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -24807,7 +24460,7 @@ buf.push("<div class=\"page\"><div v-if=\"!page.loading &amp;&amp; !page.error\"
 }
 
 /***/ }),
-/* 85 */
+/* 82 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -24821,7 +24474,7 @@ buf.push("<div class=\"page page-account page-account-sign\"><header-navbar></he
 }
 
 /***/ }),
-/* 86 */
+/* 83 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -24835,7 +24488,7 @@ buf.push("<div class=\"modal-change-password\"><div class=\"modal-header\"><h2>C
 }
 
 /***/ }),
-/* 87 */
+/* 84 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24901,7 +24554,7 @@ var PaginationComponent = /** @class */ (function (_super) {
         component_1.Emit('input')
     ], PaginationComponent.prototype, "input", null);
     PaginationComponent = __decorate([
-        component_1.Dom('pagination', __webpack_require__(88)())
+        component_1.Dom('pagination', __webpack_require__(85)())
     ], PaginationComponent);
     return PaginationComponent;
 }(component_1.Component));
@@ -24909,7 +24562,7 @@ exports.PaginationComponent = PaginationComponent;
 
 
 /***/ }),
-/* 88 */
+/* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -24923,7 +24576,7 @@ buf.push("<div class=\"pagination\"><li :class=\"{disabled: this.page == 1}\" @c
 }
 
 /***/ }),
-/* 89 */
+/* 86 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25017,7 +24670,7 @@ var OrderPanelComponent = /** @class */ (function (_super) {
         component_1.Prop()
     ], OrderPanelComponent.prototype, "productId", void 0);
     OrderPanelComponent = __decorate([
-        component_1.Dom('panel-order', __webpack_require__(90)())
+        component_1.Dom('panel-order', __webpack_require__(87)())
     ], OrderPanelComponent);
     return OrderPanelComponent;
 }(component_1.Component));
@@ -25025,7 +24678,7 @@ exports.OrderPanelComponent = OrderPanelComponent;
 
 
 /***/ }),
-/* 90 */
+/* 87 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -25039,7 +24692,7 @@ buf.push("<div class=\"panel panel-order\"><h2>OPEN ORDERS<button v-show=\"cance
 }
 
 /***/ }),
-/* 91 */
+/* 88 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25141,7 +24794,7 @@ var SelectComponent = /** @class */ (function (_super) {
         component_1.Emit()
     ], SelectComponent.prototype, "input", null);
     SelectComponent = __decorate([
-        component_1.Dom('v-select', __webpack_require__(92)())
+        component_1.Dom('v-select', __webpack_require__(89)())
     ], SelectComponent);
     return SelectComponent;
 }(component_1.Component));
@@ -25149,7 +24802,7 @@ exports.SelectComponent = SelectComponent;
 
 
 /***/ }),
-/* 92 */
+/* 89 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -25163,7 +24816,7 @@ buf.push("<div :class=\"{'search': search}\" class=\"v-select\"><div @click.stop
 }
 
 /***/ }),
-/* 93 */
+/* 90 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25208,7 +24861,7 @@ var IconHamburgerComponent = /** @class */ (function (_super) {
         _super.prototype.mounted.call(this);
     };
     IconHamburgerComponent = __decorate([
-        component_1.Dom('icon-hamburger', __webpack_require__(94))
+        component_1.Dom('icon-hamburger', __webpack_require__(91))
     ], IconHamburgerComponent);
     return IconHamburgerComponent;
 }(component_1.Component));
@@ -25216,13 +24869,13 @@ exports.IconHamburgerComponent = IconHamburgerComponent;
 
 
 /***/ }),
-/* 94 */
+/* 91 */
 /***/ (function(module, exports) {
 
 module.exports = "<span class=\"icon icon-hamburger\">\r\n    <svg width=\"18\" height=\"16\" viewBox=\"0 0 18 16\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" fill=\"#fff\"><use xlink:href=\"#path0_stroke\" transform=\"translate(0 1)\"></use><use xlink:href=\"#path0_stroke\" transform=\"translate(0 8)\"></use><use xlink:href=\"#path0_stroke\" transform=\"translate(0 15)\"></use><defs><path id=\"path0_stroke\" d=\"M0 1h18v-2H0v2z\"></path></defs></svg>\r\n</span>";
 
 /***/ }),
-/* 95 */
+/* 92 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25336,7 +24989,7 @@ var AccountOrderPage = /** @class */ (function (_super) {
         component_1.Watch('cursorDirection')
     ], AccountOrderPage.prototype, "onCursorDirection", null);
     AccountOrderPage = __decorate([
-        page_1.Route('/account/order', __webpack_require__(96)())
+        page_1.Route('/account/order', __webpack_require__(93)())
     ], AccountOrderPage);
     return AccountOrderPage;
 }(page_1.Page));
@@ -25344,7 +24997,7 @@ exports.AccountOrderPage = AccountOrderPage;
 
 
 /***/ }),
-/* 96 */
+/* 93 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -25358,7 +25011,7 @@ buf.push("<div class=\"page page-account page-account-order\"><header-navbar act
 }
 
 /***/ }),
-/* 97 */
+/* 94 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25403,7 +25056,7 @@ var IconDownComponent = /** @class */ (function (_super) {
         _super.prototype.mounted.call(this);
     };
     IconDownComponent = __decorate([
-        component_1.Dom('icon-down', __webpack_require__(98))
+        component_1.Dom('icon-down', __webpack_require__(95))
     ], IconDownComponent);
     return IconDownComponent;
 }(component_1.Component));
@@ -25411,13 +25064,13 @@ exports.IconDownComponent = IconDownComponent;
 
 
 /***/ }),
-/* 98 */
+/* 95 */
 /***/ (function(module, exports) {
 
 module.exports = "<span class=\"icon icon-down\">\r\n    <svg width=\"20\" height=\"20\" viewBox=\"0 0 20 20\"><g fill=\"none\" fill-rule=\"evenodd\"><path stroke=\"#14181C\" d=\"M.5.5h19v19H.5z\"></path><path d=\"M14 10H6\" stroke=\"#fff\" stroke-linecap=\"square\"></path></g></svg>\r\n</span>";
 
 /***/ }),
-/* 99 */
+/* 96 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25462,7 +25115,7 @@ var IconUpComponent = /** @class */ (function (_super) {
         _super.prototype.mounted.call(this);
     };
     IconUpComponent = __decorate([
-        component_1.Dom('icon-up', __webpack_require__(100))
+        component_1.Dom('icon-up', __webpack_require__(97))
     ], IconUpComponent);
     return IconUpComponent;
 }(component_1.Component));
@@ -25470,13 +25123,13 @@ exports.IconUpComponent = IconUpComponent;
 
 
 /***/ }),
-/* 100 */
+/* 97 */
 /***/ (function(module, exports) {
 
 module.exports = "<span class=\"icon icon-up\">\r\n    <svg width=\"20\" height=\"20\" viewBox=\"0 0 20 20\"><g fill=\"none\" fill-rule=\"evenodd\"><path stroke=\"#14181C\" d=\"M.5.5h19v19H.5z\"></path><g stroke=\"#fff\" stroke-linecap=\"square\"><path d=\"M10 6v8M14 10H6\"></path></g></g></svg>\r\n</span>";
 
 /***/ }),
-/* 101 */
+/* 98 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25521,7 +25174,7 @@ var IconArrowComponent = /** @class */ (function (_super) {
         _super.prototype.mounted.call(this);
     };
     IconArrowComponent = __decorate([
-        component_1.Dom('icon-arrow', __webpack_require__(102))
+        component_1.Dom('icon-arrow', __webpack_require__(99))
     ], IconArrowComponent);
     return IconArrowComponent;
 }(component_1.Component));
@@ -25529,13 +25182,13 @@ exports.IconArrowComponent = IconArrowComponent;
 
 
 /***/ }),
-/* 102 */
+/* 99 */
 /***/ (function(module, exports) {
 
 module.exports = "<span class=\"icon icon-arrow\">\r\n    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"11\" height=\"18\" viewBox=\"0 0 11 18\"><path fill=\"none\" d=\"M2 2l7 7-7 7\"></path></svg>\r\n</span>";
 
 /***/ }),
-/* 103 */
+/* 100 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25591,7 +25244,7 @@ var WalletPanelComponent = /** @class */ (function (_super) {
         component_1.Emit('receive')
     ], WalletPanelComponent.prototype, "receive", null);
     WalletPanelComponent = __decorate([
-        component_1.Dom('panel-wallet', __webpack_require__(104)())
+        component_1.Dom('panel-wallet', __webpack_require__(101)())
     ], WalletPanelComponent);
     return WalletPanelComponent;
 }(component_1.Component));
@@ -25599,7 +25252,7 @@ exports.WalletPanelComponent = WalletPanelComponent;
 
 
 /***/ }),
-/* 104 */
+/* 101 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -25613,7 +25266,7 @@ buf.push("<div class=\"panel-wallet cover\"><img :src=\"wallet.currencyIcon\" cl
 }
 
 /***/ }),
-/* 105 */
+/* 102 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25686,7 +25339,7 @@ var WalletListPanelComponent = /** @class */ (function (_super) {
         component_1.Emit('select')
     ], WalletListPanelComponent.prototype, "select", null);
     WalletListPanelComponent = __decorate([
-        component_1.Dom('panel-wallet-list', __webpack_require__(106)())
+        component_1.Dom('panel-wallet-list', __webpack_require__(103)())
     ], WalletListPanelComponent);
     return WalletListPanelComponent;
 }(component_1.Component));
@@ -25694,7 +25347,7 @@ exports.WalletListPanelComponent = WalletListPanelComponent;
 
 
 /***/ }),
-/* 106 */
+/* 103 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -25708,7 +25361,7 @@ buf.push("<div class=\"panel-wallet\"><li v-for=\"f in funds\" :class=\"{active:
 }
 
 /***/ }),
-/* 107 */
+/* 104 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25763,7 +25416,7 @@ var TransactionModalComponent = /** @class */ (function (_super) {
         component_1.Emit('close')
     ], TransactionModalComponent.prototype, "close", null);
     TransactionModalComponent = __decorate([
-        component_1.Dom('modal-transaction', __webpack_require__(108)())
+        component_1.Dom('modal-transaction', __webpack_require__(105)())
     ], TransactionModalComponent);
     return TransactionModalComponent;
 }(component_1.Component));
@@ -25771,7 +25424,7 @@ exports.TransactionModalComponent = TransactionModalComponent;
 
 
 /***/ }),
-/* 108 */
+/* 105 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -25785,7 +25438,7 @@ buf.push("<div v-if=\"transaction.amount\" class=\"modal-transaction\"><div clas
 }
 
 /***/ }),
-/* 109 */
+/* 106 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25830,7 +25483,7 @@ var IconSentComponent = /** @class */ (function (_super) {
         _super.prototype.mounted.call(this);
     };
     IconSentComponent = __decorate([
-        component_1.Dom('icon-sent', __webpack_require__(110))
+        component_1.Dom('icon-sent', __webpack_require__(107))
     ], IconSentComponent);
     return IconSentComponent;
 }(component_1.Component));
@@ -25838,13 +25491,13 @@ exports.IconSentComponent = IconSentComponent;
 
 
 /***/ }),
-/* 110 */
+/* 107 */
 /***/ (function(module, exports) {
 
 module.exports = "<span class=\"icon icon-sent\">\r\n    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"30\" height=\"30\" viewBox=\"0 0 30 30\"><g fill=\"none\" fill-rule=\"evenodd\" transform=\"translate(1 1)\"><path d=\"M14 17.684V5.894M18.421 10.315L14 5.894l-4.421 4.421M20.268 20.632H7.731\"></path><circle cx=\"14\" cy=\"14\" r=\"14\"></circle></g></svg>\r\n</span>";
 
 /***/ }),
-/* 111 */
+/* 108 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25908,7 +25561,7 @@ var AccountWalletPage = /** @class */ (function (_super) {
         this.createModal('modal-transaction', { transaction: transaction });
     };
     AccountWalletPage = __decorate([
-        page_1.Route('/account/wallet', __webpack_require__(112)())
+        page_1.Route('/account/wallet', __webpack_require__(109)())
     ], AccountWalletPage);
     return AccountWalletPage;
 }(page_1.Page));
@@ -25916,7 +25569,7 @@ exports.AccountWalletPage = AccountWalletPage;
 
 
 /***/ }),
-/* 112 */
+/* 109 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -25930,7 +25583,7 @@ buf.push("<div class=\"page page-account page-account-wallet\"><header-navbar ac
 }
 
 /***/ }),
-/* 113 */
+/* 110 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25979,7 +25632,7 @@ var AccountWalletWithdrawalPage = /** @class */ (function (_super) {
         this.pageLoadingHide();
     };
     AccountWalletWithdrawalPage = __decorate([
-        page_1.Route('/account/balance/withdrawal', __webpack_require__(114)())
+        page_1.Route('/account/balance/withdrawal', __webpack_require__(111)())
     ], AccountWalletWithdrawalPage);
     return AccountWalletWithdrawalPage;
 }(page_1.Page));
@@ -25987,7 +25640,7 @@ exports.AccountWalletWithdrawalPage = AccountWalletWithdrawalPage;
 
 
 /***/ }),
-/* 114 */
+/* 111 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -26001,7 +25654,7 @@ buf.push("<div class=\"page page-account page-account-withdrawal\"><header-navba
 }
 
 /***/ }),
-/* 115 */
+/* 112 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26050,7 +25703,7 @@ var AccountWalletDepositPage = /** @class */ (function (_super) {
         this.pageLoadingHide();
     };
     AccountWalletDepositPage = __decorate([
-        page_1.Route('/account/balance/deposit', __webpack_require__(116)())
+        page_1.Route('/account/balance/deposit', __webpack_require__(113)())
     ], AccountWalletDepositPage);
     return AccountWalletDepositPage;
 }(page_1.Page));
@@ -26058,7 +25711,7 @@ exports.AccountWalletDepositPage = AccountWalletDepositPage;
 
 
 /***/ }),
-/* 116 */
+/* 113 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -26072,7 +25725,7 @@ buf.push("<div class=\"page page-account page-account-deposit\"><header-navbar a
 }
 
 /***/ }),
-/* 117 */
+/* 114 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26141,7 +25794,7 @@ var TransactionPanelComponent = /** @class */ (function (_super) {
         component_1.Emit('detail')
     ], TransactionPanelComponent.prototype, "detail", null);
     TransactionPanelComponent = __decorate([
-        component_1.Dom('panel-transaction', __webpack_require__(118)())
+        component_1.Dom('panel-transaction', __webpack_require__(115)())
     ], TransactionPanelComponent);
     return TransactionPanelComponent;
 }(component_1.Component));
@@ -26149,7 +25802,7 @@ exports.TransactionPanelComponent = TransactionPanelComponent;
 
 
 /***/ }),
-/* 118 */
+/* 115 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -26163,7 +25816,7 @@ buf.push("<div class=\"panel-transaction\"><h2>Transactions</h2><div class=\"lis
 }
 
 /***/ }),
-/* 119 */
+/* 116 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26208,7 +25861,7 @@ var IconReceivedComponent = /** @class */ (function (_super) {
         _super.prototype.mounted.call(this);
     };
     IconReceivedComponent = __decorate([
-        component_1.Dom('icon-received', __webpack_require__(120))
+        component_1.Dom('icon-received', __webpack_require__(117))
     ], IconReceivedComponent);
     return IconReceivedComponent;
 }(component_1.Component));
@@ -26216,13 +25869,13 @@ exports.IconReceivedComponent = IconReceivedComponent;
 
 
 /***/ }),
-/* 120 */
+/* 117 */
 /***/ (function(module, exports) {
 
 module.exports = "<span class=\"icon icon-received\">\r\n    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"30\" height=\"30\" viewBox=\"0 0 30 30\"><g fill=\"none\" fill-rule=\"evenodd\" transform=\"translate(1 1)\"><path d=\"M14 5.895v11.79M18.421 13.263L14 17.684l-4.421-4.421M20.268 20.632H7.731\"></path><circle cx=\"14\" cy=\"14\" r=\"14\"></circle></g></svg>\r\n</span>";
 
 /***/ }),
-/* 121 */
+/* 118 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26267,7 +25920,7 @@ var IconSendComponent = /** @class */ (function (_super) {
         _super.prototype.mounted.call(this);
     };
     IconSendComponent = __decorate([
-        component_1.Dom('icon-send', __webpack_require__(122))
+        component_1.Dom('icon-send', __webpack_require__(119))
     ], IconSendComponent);
     return IconSendComponent;
 }(component_1.Component));
@@ -26275,13 +25928,13 @@ exports.IconSendComponent = IconSendComponent;
 
 
 /***/ }),
-/* 122 */
+/* 119 */
 /***/ (function(module, exports) {
 
 module.exports = "<span class=\"icon icon-send\">\r\n<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" class=\"AccountActionButtons__SendIcon-kyRafb euUfsS\"><path d=\"M15.707.293a1 1 0 0 0-1.043-.234l-14 5a.999.999 0 0 0-.111 1.835l4.586 2.292L11 5l-4.187 5.862 2.292 4.586a1.004 1.004 0 0 0 1.838-.112l5-14c.129-.363.037-.77-.236-1.043z\"></path></svg>\r\n</span>";
 
 /***/ }),
-/* 123 */
+/* 120 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26326,7 +25979,7 @@ var IconQrcodeComponent = /** @class */ (function (_super) {
         _super.prototype.mounted.call(this);
     };
     IconQrcodeComponent = __decorate([
-        component_1.Dom('icon-qrcode', __webpack_require__(124))
+        component_1.Dom('icon-qrcode', __webpack_require__(121))
     ], IconQrcodeComponent);
     return IconQrcodeComponent;
 }(component_1.Component));
@@ -26334,13 +25987,13 @@ exports.IconQrcodeComponent = IconQrcodeComponent;
 
 
 /***/ }),
-/* 124 */
+/* 121 */
 /***/ (function(module, exports) {
 
 module.exports = "<span class=\"icon icon-qrcode\">\r\n<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"14\" height=\"14\" viewBox=\"0 0 14 14\" class=\"AccountActionButtons__QRIcon-liMnje iknfew\"><path d=\"M6.417 6.417H0V0h6.417v6.417zM1.167 5.25H5.25V1.167H1.167V5.25zM14 6.417H7.583V0H14v6.417zM8.75 5.25h4.083V1.167H8.75V5.25zM6.417 14H0V7.583h6.417V14zm-5.25-1.167H5.25V8.75H1.167v4.083zM14 11.667h-1.167V8.75h-1.166v1.75h-3.5V7.583h1.166v1.75H10.5v-1.75H14zM14 14H8.167v-2.333h1.166v1.166H14z\"></path><path d=\"M2.333 2.333h1.75v1.75h-1.75zM9.917 2.333h1.75v1.75h-1.75zM2.333 9.917h1.75v1.75h-1.75z\"></path></svg>\r\n</span>";
 
 /***/ }),
-/* 125 */
+/* 122 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26403,7 +26056,7 @@ var NumberFormatComponent = /** @class */ (function (_super) {
         component_1.Watch('num')
     ], NumberFormatComponent.prototype, "onNumChange", null);
     NumberFormatComponent = __decorate([
-        component_1.Dom('format-number', __webpack_require__(126)())
+        component_1.Dom('format-number', __webpack_require__(123)())
     ], NumberFormatComponent);
     return NumberFormatComponent;
 }(component_1.Component));
@@ -26411,7 +26064,7 @@ exports.NumberFormatComponent = NumberFormatComponent;
 
 
 /***/ }),
-/* 126 */
+/* 123 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -26425,7 +26078,7 @@ buf.push("<div class=\"format-number\"><i>{{v1}}</i><i>{{v2}}</i></div>");;retur
 }
 
 /***/ }),
-/* 127 */
+/* 124 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26492,7 +26145,7 @@ var PriceFormatComponent = /** @class */ (function (_super) {
         component_1.Watch('price')
     ], PriceFormatComponent.prototype, "onPriceChange", null);
     PriceFormatComponent = __decorate([
-        component_1.Dom('format-price', __webpack_require__(128)())
+        component_1.Dom('format-price', __webpack_require__(125)())
     ], PriceFormatComponent);
     return PriceFormatComponent;
 }(component_1.Component));
@@ -26500,7 +26153,7 @@ exports.PriceFormatComponent = PriceFormatComponent;
 
 
 /***/ }),
-/* 128 */
+/* 125 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -26514,7 +26167,7 @@ buf.push("<div :class=\"css\" class=\"format-price\"><i>{{format[0]}}</i>.<i>{{f
 }
 
 /***/ }),
-/* 129 */
+/* 126 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26559,7 +26212,7 @@ var IconSuccessComponent = /** @class */ (function (_super) {
         _super.prototype.mounted.call(this);
     };
     IconSuccessComponent = __decorate([
-        component_1.Dom('icon-success', __webpack_require__(130)())
+        component_1.Dom('icon-success', __webpack_require__(127)())
     ], IconSuccessComponent);
     return IconSuccessComponent;
 }(component_1.Component));
@@ -26567,7 +26220,7 @@ exports.IconSuccessComponent = IconSuccessComponent;
 
 
 /***/ }),
-/* 130 */
+/* 127 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -26581,7 +26234,7 @@ buf.push("<div class=\"icon-success\"><div class=\"animate\"><span class=\"sa-li
 }
 
 /***/ }),
-/* 131 */
+/* 128 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26660,7 +26313,7 @@ var WithdrawalFormComponent = /** @class */ (function (_super) {
         component_1.Emit()
     ], WithdrawalFormComponent.prototype, "success", null);
     WithdrawalFormComponent = __decorate([
-        component_1.Dom('form-withdrawal', __webpack_require__(132)())
+        component_1.Dom('form-withdrawal', __webpack_require__(129)())
     ], WithdrawalFormComponent);
     return WithdrawalFormComponent;
 }(component_1.Component));
@@ -26668,7 +26321,7 @@ exports.WithdrawalFormComponent = WithdrawalFormComponent;
 
 
 /***/ }),
-/* 132 */
+/* 129 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -26682,7 +26335,7 @@ buf.push("<div class=\"form-withdrawal\"><div class=\"control-group\"><label>DES
 }
 
 /***/ }),
-/* 133 */
+/* 130 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26752,7 +26405,7 @@ var DepositFormComponent = /** @class */ (function (_super) {
         component_1.Watch('currency')
     ], DepositFormComponent.prototype, "onCurrencyChange", null);
     DepositFormComponent = __decorate([
-        component_1.Dom('form-deposit', __webpack_require__(134)())
+        component_1.Dom('form-deposit', __webpack_require__(131)())
     ], DepositFormComponent);
     return DepositFormComponent;
 }(component_1.Component));
@@ -26760,7 +26413,7 @@ exports.DepositFormComponent = DepositFormComponent;
 
 
 /***/ }),
-/* 134 */
+/* 131 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -26774,7 +26427,7 @@ buf.push("<div class=\"form-deposit\"><div ref=\"qrcode\" class=\"qrcode\"></div
 }
 
 /***/ }),
-/* 135 */
+/* 132 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26819,7 +26472,7 @@ var IconTransactionComponent = /** @class */ (function (_super) {
         _super.prototype.mounted.call(this);
     };
     IconTransactionComponent = __decorate([
-        component_1.Dom('icon-transaction', __webpack_require__(136))
+        component_1.Dom('icon-transaction', __webpack_require__(133))
     ], IconTransactionComponent);
     return IconTransactionComponent;
 }(component_1.Component));
@@ -26827,13 +26480,13 @@ exports.IconTransactionComponent = IconTransactionComponent;
 
 
 /***/ }),
-/* 136 */
+/* 133 */
 /***/ (function(module, exports) {
 
 module.exports = "<svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\" viewBox=\"0 0 1000 1000\" enable-background=\"new 0 0 1000 1000\" xml:space=\"preserve\" class=\"icon-transaction\">\r\n    <g><path d=\"M500,10C230.5,10,10,230.5,10,500s220.5,490,490,490s490-220.5,490-490S769.5,10,500,10z M500,928.8C264.2,928.8,71.3,735.8,71.3,500S264.2,71.3,500,71.3S928.8,264.2,928.8,500S735.8,928.8,500,928.8z M500,255l214.4,214.4l-42.9,42.9L530.6,371.4V745h-61.3V371.4L328.5,512.3l-42.9-42.9L500,255z\" style=\"fill:#FFFFFF\"/></g>\r\n</svg>";
 
 /***/ }),
-/* 137 */
+/* 134 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26913,7 +26566,7 @@ var WithdrawalModalComponent = /** @class */ (function (_super) {
         component_1.Emit('close')
     ], WithdrawalModalComponent.prototype, "close", null);
     WithdrawalModalComponent = __decorate([
-        component_1.Dom('modal-withdrawal', __webpack_require__(138)())
+        component_1.Dom('modal-withdrawal', __webpack_require__(135)())
     ], WithdrawalModalComponent);
     return WithdrawalModalComponent;
 }(component_1.Component));
@@ -26921,7 +26574,7 @@ exports.WithdrawalModalComponent = WithdrawalModalComponent;
 
 
 /***/ }),
-/* 138 */
+/* 135 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -26935,7 +26588,7 @@ buf.push("<div class=\"modal-withdrawal\"><div class=\"modal-header\"><h2>WITHDR
 }
 
 /***/ }),
-/* 139 */
+/* 136 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27006,7 +26659,7 @@ var DepositModalComponent = /** @class */ (function (_super) {
         component_1.Emit('close')
     ], DepositModalComponent.prototype, "close", null);
     DepositModalComponent = __decorate([
-        component_1.Dom('modal-deposit', __webpack_require__(140)())
+        component_1.Dom('modal-deposit', __webpack_require__(137)())
     ], DepositModalComponent);
     return DepositModalComponent;
 }(component_1.Component));
@@ -27014,7 +26667,7 @@ exports.DepositModalComponent = DepositModalComponent;
 
 
 /***/ }),
-/* 140 */
+/* 137 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -27028,7 +26681,7 @@ buf.push("<div class=\"modal-deposit\"><div class=\"modal-header\"><h2>DEPOSIT F
 }
 
 /***/ }),
-/* 141 */
+/* 138 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27065,7 +26718,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 var service_1 = __webpack_require__(2);
 var http_1 = __webpack_require__(3);
-var change_password_1 = __webpack_require__(31);
+var change_password_1 = __webpack_require__(29);
 var page_1 = __webpack_require__(6);
 var AccountProfilePage = /** @class */ (function (_super) {
     __extends(AccountProfilePage, _super);
@@ -27100,7 +26753,7 @@ var AccountProfilePage = /** @class */ (function (_super) {
         }
     };
     AccountProfilePage = __decorate([
-        page_1.Route('/account/profile', __webpack_require__(142)())
+        page_1.Route('/account/profile', __webpack_require__(139)())
     ], AccountProfilePage);
     return AccountProfilePage;
 }(page_1.Page));
@@ -27108,7 +26761,7 @@ exports.AccountProfilePage = AccountProfilePage;
 
 
 /***/ }),
-/* 142 */
+/* 139 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -27122,7 +26775,7 @@ buf.push("<div class=\"page page-account page-account-profile\"><header-navbar><
 }
 
 /***/ }),
-/* 143 */
+/* 140 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27194,7 +26847,7 @@ var AccountSignupPage = /** @class */ (function (_super) {
         });
     };
     AccountSignupPage = __decorate([
-        page_1.Route('/account/signup', __webpack_require__(144)())
+        page_1.Route('/account/signup', __webpack_require__(141)())
     ], AccountSignupPage);
     return AccountSignupPage;
 }(page_1.Page));
@@ -27202,7 +26855,7 @@ exports.AccountSignupPage = AccountSignupPage;
 
 
 /***/ }),
-/* 144 */
+/* 141 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -27216,7 +26869,7 @@ buf.push("<div class=\"page page-account page-account-sign\"><header-navbar></he
 }
 
 /***/ }),
-/* 145 */
+/* 142 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27298,7 +26951,7 @@ var AccountSigninPage = /** @class */ (function (_super) {
         });
     };
     AccountSigninPage = __decorate([
-        page_1.Route('/account/signin', __webpack_require__(146)())
+        page_1.Route('/account/signin', __webpack_require__(143)())
     ], AccountSigninPage);
     return AccountSigninPage;
 }(page_1.Page));
@@ -27306,7 +26959,7 @@ exports.AccountSigninPage = AccountSigninPage;
 
 
 /***/ }),
-/* 146 */
+/* 143 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -27320,7 +26973,7 @@ buf.push("<div class=\"page page-account page-account-sign\"><header-navbar></he
 }
 
 /***/ }),
-/* 147 */
+/* 144 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27413,7 +27066,7 @@ var NavbarHeaderComponent = /** @class */ (function (_super) {
         component_1.Prop()
     ], NavbarHeaderComponent.prototype, "active", void 0);
     NavbarHeaderComponent = __decorate([
-        component_1.Dom('header-navbar', __webpack_require__(148)())
+        component_1.Dom('header-navbar', __webpack_require__(145)())
     ], NavbarHeaderComponent);
     return NavbarHeaderComponent;
 }(component_1.Component));
@@ -27421,7 +27074,7 @@ exports.NavbarHeaderComponent = NavbarHeaderComponent;
 
 
 /***/ }),
-/* 148 */
+/* 145 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -27435,7 +27088,7 @@ buf.push("<div class=\"header header-navbar\"><div class=\"navbar-inner\"><div @
 }
 
 /***/ }),
-/* 149 */
+/* 146 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27480,7 +27133,7 @@ var ProxyPage = /** @class */ (function (_super) {
         this.$router.replace(this.$route.query.href);
     };
     ProxyPage = __decorate([
-        page_1.Route('/proxy', __webpack_require__(150)())
+        page_1.Route('/proxy', __webpack_require__(147)())
     ], ProxyPage);
     return ProxyPage;
 }(page_1.Page));
@@ -27488,7 +27141,7 @@ exports.ProxyPage = ProxyPage;
 
 
 /***/ }),
-/* 150 */
+/* 147 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -27502,7 +27155,7 @@ buf.push("<div class=\"page\">跳转中...</div>");;return buf.join("");
 }
 
 /***/ }),
-/* 151 */
+/* 148 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27553,7 +27206,7 @@ var LinkProxyComponent = /** @class */ (function (_super) {
         component_1.Prop()
     ], LinkProxyComponent.prototype, "to", void 0);
     LinkProxyComponent = __decorate([
-        component_1.Dom('link-proxy', __webpack_require__(152)())
+        component_1.Dom('link-proxy', __webpack_require__(149)())
     ], LinkProxyComponent);
     return LinkProxyComponent;
 }(component_1.Component));
@@ -27561,7 +27214,7 @@ exports.LinkProxyComponent = LinkProxyComponent;
 
 
 /***/ }),
-/* 152 */
+/* 149 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -27575,7 +27228,7 @@ buf.push("<div @click=\"goto\"><slot></slot></div>");;return buf.join("");
 }
 
 /***/ }),
-/* 153 */
+/* 150 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27656,7 +27309,7 @@ var TradeHistoryPanelComponent = /** @class */ (function (_super) {
         component_1.Emit('tabbar-change')
     ], TradeHistoryPanelComponent.prototype, "tabbarChange", null);
     TradeHistoryPanelComponent = __decorate([
-        component_1.Dom('panel-trade-history', __webpack_require__(154)())
+        component_1.Dom('panel-trade-history', __webpack_require__(151)())
     ], TradeHistoryPanelComponent);
     return TradeHistoryPanelComponent;
 }(component_1.Component));
@@ -27664,7 +27317,7 @@ exports.TradeHistoryPanelComponent = TradeHistoryPanelComponent;
 
 
 /***/ }),
-/* 154 */
+/* 151 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -27678,7 +27331,7 @@ buf.push("<div class=\"panel panel-trade-history\"><h2>TRADE HISTORY<span class=
 }
 
 /***/ }),
-/* 155 */
+/* 152 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27737,7 +27390,7 @@ var TradeViewChartComponent = /** @class */ (function (_super) {
         component_1.Prop()
     ], TradeViewChartComponent.prototype, "productId", void 0);
     TradeViewChartComponent = __decorate([
-        component_1.Dom('chart-trade-view', __webpack_require__(156)())
+        component_1.Dom('chart-trade-view', __webpack_require__(153)())
     ], TradeViewChartComponent);
     return TradeViewChartComponent;
 }(component_1.Component));
@@ -27745,7 +27398,7 @@ exports.TradeViewChartComponent = TradeViewChartComponent;
 
 
 /***/ }),
-/* 156 */
+/* 153 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -27759,7 +27412,7 @@ buf.push("<div class=\"chart panel chart-trade-view\"><h2>PRICE CHART<span class
 }
 
 /***/ }),
-/* 157 */
+/* 154 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27920,7 +27573,7 @@ var OrderBookPanelComponent = /** @class */ (function (_super) {
         component_1.Emit('select')
     ], OrderBookPanelComponent.prototype, "select", null);
     OrderBookPanelComponent = __decorate([
-        component_1.Dom('panel-order-book', __webpack_require__(158)())
+        component_1.Dom('panel-order-book', __webpack_require__(155)())
     ], OrderBookPanelComponent);
     return OrderBookPanelComponent;
 }(component_1.Component));
@@ -27928,7 +27581,7 @@ exports.OrderBookPanelComponent = OrderBookPanelComponent;
 
 
 /***/ }),
-/* 158 */
+/* 155 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -27942,7 +27595,7 @@ buf.push("<div class=\"panel panel-order-book\"><h2>ORDER BOOK<span class=\"pann
 }
 
 /***/ }),
-/* 159 */
+/* 156 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28180,7 +27833,7 @@ var OrderFormComponent = /** @class */ (function (_super) {
         component_1.Emit('withdrawal')
     ], OrderFormComponent.prototype, "withdrawal", null);
     OrderFormComponent = __decorate([
-        component_1.Dom('form-order', __webpack_require__(160)())
+        component_1.Dom('form-order', __webpack_require__(157)())
     ], OrderFormComponent);
     return OrderFormComponent;
 }(component_1.Component));
@@ -28188,7 +27841,7 @@ exports.OrderFormComponent = OrderFormComponent;
 
 
 /***/ }),
-/* 160 */
+/* 157 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -28202,7 +27855,7 @@ buf.push("<div class=\"form-order\"><h2>ORDER FORM</h2><div v-if=\"!logined\" cl
 }
 
 /***/ }),
-/* 161 */
+/* 158 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28253,7 +27906,7 @@ var TradePanelComponent = /** @class */ (function (_super) {
         component_1.Prop()
     ], TradePanelComponent.prototype, "groups", void 0);
     TradePanelComponent = __decorate([
-        component_1.Dom('panel-trade', __webpack_require__(162)())
+        component_1.Dom('panel-trade', __webpack_require__(159)())
     ], TradePanelComponent);
     return TradePanelComponent;
 }(component_1.Component));
@@ -28261,7 +27914,7 @@ exports.TradePanelComponent = TradePanelComponent;
 
 
 /***/ }),
-/* 162 */
+/* 159 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -28275,7 +27928,7 @@ buf.push("<div class=\"panel-trade\"><div v-for=\"(products, key) in groups\" cl
 }
 
 /***/ }),
-/* 163 */
+/* 160 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28394,7 +28047,7 @@ var TradeHeaderComponent = /** @class */ (function (_super) {
         component_1.Prop()
     ], TradeHeaderComponent.prototype, "productId", void 0);
     TradeHeaderComponent = __decorate([
-        component_1.Dom('header-trade', __webpack_require__(164)())
+        component_1.Dom('header-trade', __webpack_require__(161)())
     ], TradeHeaderComponent);
     return TradeHeaderComponent;
 }(component_1.Component));
@@ -28402,7 +28055,7 @@ exports.TradeHeaderComponent = TradeHeaderComponent;
 
 
 /***/ }),
-/* 164 */
+/* 161 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -28416,7 +28069,7 @@ buf.push("<div class=\"header header-trade\"><logo @click.native=\"toHome\"></lo
 }
 
 /***/ }),
-/* 165 */
+/* 162 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28452,8 +28105,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var watch_1 = __webpack_require__(7);
-var vue_property_decorator_1 = __webpack_require__(17);
-var channel_1 = __webpack_require__(20);
+var vue_property_decorator_1 = __webpack_require__(15);
+var channel_1 = __webpack_require__(18);
 var service_1 = __webpack_require__(2);
 var page_1 = __webpack_require__(6);
 var TradePage = /** @class */ (function (_super) {
@@ -28548,7 +28201,7 @@ var TradePage = /** @class */ (function (_super) {
         vue_property_decorator_1.Watch('componentActive')
     ], TradePage.prototype, "componentActiveChange", null);
     TradePage = __decorate([
-        page_1.Route('/trade/:id', __webpack_require__(166)())
+        page_1.Route('/trade/:id', __webpack_require__(163)())
     ], TradePage);
     return TradePage;
 }(page_1.Page));
@@ -28556,7 +28209,7 @@ exports.TradePage = TradePage;
 
 
 /***/ }),
-/* 166 */
+/* 163 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -28570,7 +28223,7 @@ buf.push("<div class=\"page page-trade\"><header-trade :products=\"products\" :p
 }
 
 /***/ }),
-/* 167 */
+/* 164 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28615,7 +28268,7 @@ var PageLoadingComponent = /** @class */ (function (_super) {
         _super.prototype.mounted.call(this);
     };
     PageLoadingComponent = __decorate([
-        component_1.Dom('page-loading', __webpack_require__(168)())
+        component_1.Dom('page-loading', __webpack_require__(165)())
     ], PageLoadingComponent);
     return PageLoadingComponent;
 }(component_1.Component));
@@ -28623,7 +28276,7 @@ exports.PageLoadingComponent = PageLoadingComponent;
 
 
 /***/ }),
-/* 168 */
+/* 165 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -28637,7 +28290,7 @@ buf.push("<div class=\"page-loading\"><span class=\"spinner\"></span></div>");;r
 }
 
 /***/ }),
-/* 169 */
+/* 166 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28685,7 +28338,7 @@ var PageErrorComponent = /** @class */ (function (_super) {
         component_1.Prop()
     ], PageErrorComponent.prototype, "content", void 0);
     PageErrorComponent = __decorate([
-        component_1.Dom('page-error', __webpack_require__(170)())
+        component_1.Dom('page-error', __webpack_require__(167)())
     ], PageErrorComponent);
     return PageErrorComponent;
 }(component_1.Component));
@@ -28693,7 +28346,7 @@ exports.PageErrorComponent = PageErrorComponent;
 
 
 /***/ }),
-/* 170 */
+/* 167 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -28707,7 +28360,7 @@ buf.push("<div class=\"page-error\">{{content}}</div>");;return buf.join("");
 }
 
 /***/ }),
-/* 171 */
+/* 168 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28772,7 +28425,7 @@ var PageAlertComponent = /** @class */ (function (_super) {
         component_1.Emit('submitEvent')
     ], PageAlertComponent.prototype, "submit", null);
     PageAlertComponent = __decorate([
-        component_1.Dom('page-alert', __webpack_require__(172)())
+        component_1.Dom('page-alert', __webpack_require__(169)())
     ], PageAlertComponent);
     return PageAlertComponent;
 }(component_1.Component));
@@ -28780,7 +28433,7 @@ exports.PageAlertComponent = PageAlertComponent;
 
 
 /***/ }),
-/* 172 */
+/* 169 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -28794,7 +28447,7 @@ buf.push("<div class=\"page-alert\"><div class=\"content\"><div class=\"title\">
 }
 
 /***/ }),
-/* 173 */
+/* 170 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28841,7 +28494,7 @@ var HomePage = /** @class */ (function (_super) {
         this.setTitle('Gitbitex | Digital Asset Exchange');
     };
     HomePage = __decorate([
-        page_1.Route('/', __webpack_require__(174)())
+        page_1.Route('/', __webpack_require__(171)())
     ], HomePage);
     return HomePage;
 }(page_1.Page));
@@ -28849,7 +28502,7 @@ exports.HomePage = HomePage;
 
 
 /***/ }),
-/* 174 */
+/* 171 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -28863,7 +28516,7 @@ buf.push("<div class=\"page page-home\"><div class=\"header-wapper\"><header-hom
 }
 
 /***/ }),
-/* 175 */
+/* 172 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28913,7 +28566,7 @@ exports.Framework = Framework;
 
 
 /***/ }),
-/* 176 */
+/* 173 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28979,7 +28632,7 @@ var OrderListPanelComponent = /** @class */ (function (_super) {
         component_1.Prop()
     ], OrderListPanelComponent.prototype, "loading", void 0);
     OrderListPanelComponent = __decorate([
-        component_1.Dom('panel-order-list', __webpack_require__(177)())
+        component_1.Dom('panel-order-list', __webpack_require__(174)())
     ], OrderListPanelComponent);
     return OrderListPanelComponent;
 }(component_1.Component));
@@ -28987,7 +28640,7 @@ exports.OrderListPanelComponent = OrderListPanelComponent;
 
 
 /***/ }),
-/* 177 */
+/* 174 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
@@ -29001,7 +28654,7 @@ buf.push("<div :class=\"theme\" class=\"panel panel-order-list\"><div class=\"th
 }
 
 /***/ }),
-/* 178 */
+/* 175 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -29049,7 +28702,7 @@ var LogoComponent = /** @class */ (function (_super) {
         component_1.Prop()
     ], LogoComponent.prototype, "theme", void 0);
     LogoComponent = __decorate([
-        component_1.Dom('logo', __webpack_require__(179)())
+        component_1.Dom('logo', __webpack_require__(176)())
     ], LogoComponent);
     return LogoComponent;
 }(component_1.Component));
@@ -29057,7 +28710,7 @@ exports.LogoComponent = LogoComponent;
 
 
 /***/ }),
-/* 179 */
+/* 176 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var jade = __webpack_require__(1);
