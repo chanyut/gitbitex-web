@@ -45,8 +45,12 @@ export class OrderFormComponent extends Component {
     error: string = '';
 
     created() {
-        this.format.size = Number(0).toFixed(this.object.product.baseMinSize.length-2);
+        const logTag = "[OrderFormComponent::created]";
+        console.log(logTag, `productID: ${this.productId}`);
+        const s = this.object.product.baseMinSize.length-2;
+        this.format.size = Number(0).toFixed(s < 0 ? 0: s);
         this.trade.productId = this.productId;
+        console.log(logTag, `trade.productID: ${this.trade.productId}`);
     }
 
     mounted() {
@@ -176,8 +180,10 @@ export class OrderFormComponent extends Component {
     }
 
     submit() {
-        console.log("test....");
-       
+        const logTag = "[OrderFormComponent::submit]";
+        console.log(logTag, `debug trade...`);
+        console.log(this.trade);
+
         this.trade.type == 0 && (this.trade.price = Number(this.object.product.price));
 
         if (!this.trade.size || this.trade.size <= 0) {

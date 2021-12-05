@@ -28,7 +28,6 @@ export class Request {
     config: any;
 
     constructor() {
-
         axios.interceptors.request.use(function (config) {
             config.url.indexOf('http') == 0 || (config.url = '/api' + config.url);
             config.validateStatus = () => {
@@ -52,9 +51,7 @@ export class Request {
             else {
                 return Promise.reject(response.data);
             }
-
         });
-
     }
 
     get(uri: string, config: object = {}) {

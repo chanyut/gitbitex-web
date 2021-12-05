@@ -19,6 +19,7 @@ export class Constant {
         USDT: '$',
     }
     static AGGREGATION = [1, 5, 10, 50, 100, 250, 500, 1000];
-    static SOCKET_SERVER = 'ws://167.71.210.9:8002/ws';
+    // static SOCKET_SERVER = 'ws://167.71.210.9:8002/ws';
+    static SOCKET_SERVER = 'ws://localhost:8002/ws';
 
 }

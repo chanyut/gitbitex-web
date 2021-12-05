@@ -1431,7 +1431,8 @@ var Constant = /** @class */ (function () {
         USDT: '$',
     };
     Constant.AGGREGATION = [1, 5, 10, 50, 100, 250, 500, 1000];
-    Constant.SOCKET_SERVER = 'ws://167.71.210.9:8002/ws';
+    // static SOCKET_SERVER = 'ws://167.71.210.9:8002/ws';
+    Constant.SOCKET_SERVER = 'ws://localhost:8002/ws';
     return Constant;
 }());
 exports.Constant = Constant;
@@ -27651,8 +27652,12 @@ var OrderFormComponent = /** @class */ (function (_super) {
         return _this;
     }
     OrderFormComponent.prototype.created = function () {
-        this.format.size = Number(0).toFixed(this.object.product.baseMinSize.length - 2);
+        var logTag = "[OrderFormComponent::created]";
+        console.log(logTag, "productID: " + this.productId);
+        var s = this.object.product.baseMinSize.length - 2;
+        this.format.size = Number(0).toFixed(s < 0 ? 0 : s);
         this.trade.productId = this.productId;
+        console.log(logTag, "trade.productID: " + this.trade.productId);
     };
     OrderFormComponent.prototype.mounted = function () {
         _super.prototype.mounted.call(this);
@@ -27778,7 +27783,9 @@ var OrderFormComponent = /** @class */ (function (_super) {
     };
     OrderFormComponent.prototype.submit = function () {
         var _this = this;
-        console.log("test....");
+        var logTag = "[OrderFormComponent::submit]";
+        console.log(logTag, "debug trade...");
+        console.log(this.trade);
         this.trade.type == 0 && (this.trade.price = Number(this.object.product.price));
         if (!this.trade.size || this.trade.size <= 0) {
             this.alert(2, 'Amount must be specified');

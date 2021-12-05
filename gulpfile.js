@@ -27,7 +27,8 @@ isProduction = options.env == 'prod';
 buildPath = './build/web';
 routeBase = '/';
 // apiProxy = 'https://gitbitex.com:8001/';
-apiProxy = 'http://167.71.210.9:8001/'
+// apiProxy = 'http://167.71.210.9:8001/'
+apiProxy = 'http://localhost:8001'
 
 function createTask(task, taskName) {
     if (task.type == 'concat') {
@@ -147,11 +148,14 @@ gulp.task('browser-sync', function () {
         startPath: routeBase,
         server: {
             baseDir: buildPath,
-            middleware: [proxy('/api', {
-                target: apiProxy,
-                changeOrigin: true,
-                logLevel: 'debug',
-            }), history({
+            middleware: [
+                proxy('/api', {
+                    target: apiProxy,
+                    headers: { "Connection": "keep-alive" },
+                    changeOrigin: true,
+                    logLevel: 'debug',
+                }),
+                history({
                 rewrites: [
                     {
                         from: new RegExp( "/^" + routeBase + "assets/(.*)$", "gi"),
