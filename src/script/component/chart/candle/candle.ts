@@ -319,14 +319,26 @@ export class CandleChartComponent extends Component {
                 
             }
 
-            var point = [item[0]*1000, item[3], item[2], item[1], item[4], Number(item[5].toFixed(4))]
+            const val5 = Number(parseFloat(item[5]).toFixed(4));
+            console.log("val5:", val5);
+
+            // OHLC
+            // [0]date
+            // [1]open
+            // [2]high
+            // [3]low
+            // [4]close
+            var point = [item[0]*1000, item[3], item[2], item[1], item[4], val5]
+            console.log("point:", point);
 
             this.history.push(point);
             this.points[point[0]] = point;
 
+            // volume: [0]date, [1]volume
             volumes.push([
-                item[0]*1000, item[5]
+                item[0]*1000, val5,
             ]);
+            console.log("volumes:", volumes);
 
         });
 
@@ -338,10 +350,15 @@ export class CandleChartComponent extends Component {
         for(let i=0; i<7; i++) {
             volumes.push([lastTime + i*this.range.granularity*1000, null]);
         }
+
+        console.log("history:", history);
+        console.log("volumes:", volumes);
+
         this.chart.update({
             series: [
                 {animation: false, data: this.history},
-                {}, {},
+                {}, 
+                {},
                 {animation: false, data: volumes},
             ]
         });
